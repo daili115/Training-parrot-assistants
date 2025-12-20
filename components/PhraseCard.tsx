@@ -44,7 +44,6 @@ const PhraseCard: React.FC<PhraseCardProps> = ({ phrase, onDelete, onUpdateMaste
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // 当音频元素加载完成或效果改变时，应用声音效果
   useEffect(() => {
     if (audioRef.current) {
       const config = EFFECT_CONFIG[phrase.effect || 'normal'];
@@ -54,44 +53,13 @@ const PhraseCard: React.FC<PhraseCardProps> = ({ phrase, onDelete, onUpdateMaste
     }
   }, [phrase.effect]);
 
-  // 判断是否是文本转语音生成的短语
-  const isTextToSpeech = phrase.audioUrl === '' || !phrase.audioUrl;
-
   const togglePlay = () => {
-    if (isTextToSpeech) {
-      // 文本转语音播放
-      if (isPlaying) {
-        // 停止播放
-        window.speechSynthesis.cancel();
-        setIsPlaying(false);
-      } else {
-        // 开始播放
-        setIsPlaying(true);
-        const utterance = new SpeechSynthesisUtterance(phrase.label);
-        utterance.lang = 'zh-CN';
-        utterance.rate = EFFECT_CONFIG[phrase.effect || 'normal'].rate;
-        utterance.pitch = EFFECT_CONFIG[phrase.effect || 'normal'].pitch ? 1 : 0.5;
-        utterance.volume = volume;
-        
-        utterance.onend = () => {
-          setIsPlaying(false);
-        };
-        
-        utterance.onerror = () => {
-          setIsPlaying(false);
-        };
-        
-        window.speechSynthesis.speak(utterance);
-      }
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
     } else {
-      // 普通录音播放
-      if (!audioRef.current) return;
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.volume = volume;
-        audioRef.current.play();
-      }
+      audioRef.current.volume = volume;
+      audioRef.current.play();
     }
   };
 
@@ -107,7 +75,9 @@ const PhraseCard: React.FC<PhraseCardProps> = ({ phrase, onDelete, onUpdateMaste
       <div className="flex items-center gap-4 md:gap-5 w-full">
         <button 
           onClick={togglePlay}
-          className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center transition-all shadow-inner shrink-0 ${isPlaying ? 'bg-emerald-500 text-white scale-105 shadow-emerald-200' : 'bg-slate-50 text-slate-400'}`}
+          className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center transition-all shadow-inner shrink-0 ${
+            isPlaying ? 'bg-emerald-500 text-white scale-105 shadow-emerald-200' : 'bg-slate-50 text-slate-400'
+          }`}
         >
           {isPlaying ? <Pause className="w-6 h-6 md:w-7 md:h-7 fill-current" /> : <Play className="w-6 h-6 md:w-7 md:h-7 fill-current ml-0.5 md:ml-1" />}
         </button>
@@ -153,16 +123,13 @@ const PhraseCard: React.FC<PhraseCardProps> = ({ phrase, onDelete, onUpdateMaste
         </button>
       </div>
 
-      {/* 只有普通录音才有音频元素 */}
-      {!isTextToSpeech && (
-        <audio 
-          ref={audioRef} 
-          src={phrase.audioUrl} 
-          onPlay={() => setIsPlaying(true)} 
-          onPause={() => setIsPlaying(false)}
-          onEnded={() => setIsPlaying(false)}
-        />
-      )}
+      <audio 
+        ref={audioRef} 
+        src={phrase.audioUrl} 
+        onPlay={() => setIsPlaying(true)} 
+        onPause={() => setIsPlaying(false)}
+        onEnded={() => setIsPlaying(false)}
+      />
     </div>
   );
 };

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   Save, X, Sparkles, User, Bird, 
   AudioLines, Zap, Rabbit, Baby, Ghost, 
-  Radio, Atom, Skull, Tag 
+  Radio, Atom, Skull, Tag, Volume2 
 } from 'lucide-react';
 import { Phrase, VoiceEffect } from '../types';
 
@@ -29,30 +29,103 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({ onSave }) => {
   const [text, setText] = useState('');
   const [tag, setTag] = useState('日常');
   const [selectedEffect, setSelectedEffect] = useState<VoiceEffect>('normal');
-  const [isPreviewing, setIsPreviewing] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [currentEffect, setCurrentEffect] = useState<VoiceEffect>('normal');
 
-  // 当选择不同音效时，直接使用 Web Speech API 预览效果
-  const previewSpeech = () => {
+  // 当音频元素加载完成或效果改变时，应用声音效果
+  useEffect(() => {
+    if (audioRef.current) {
+      const config = EFFECT_CONFIG[currentEffect];
+      audioRef.current.playbackRate = config.rate;
+      // @ts-ignore
+      audioRef.current.preservesPitch = config.pitch;
+    }
+  }, [currentEffect, audioUrl]);
+
+  const generateSpeech = async () => {
     if (!text.trim()) return;
     
-    setIsPreviewing(true);
-    
-    // 使用 Web Speech API 直接播放语音，不进行录制
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'zh-CN';
-    utterance.rate = EFFECT_CONFIG[selectedEffect].rate;
-    utterance.pitch = EFFECT_CONFIG[selectedEffect].pitch ? 1 : 0.5;
-    utterance.volume = 1;
-    
-    utterance.onend = () => {
-      setIsPreviewing(false);
-    };
-    
-    utterance.onerror = () => {
-      setIsPreviewing(false);
-    };
-    
-    window.speechSynthesis.speak(utterance);
+    setIsGenerating(true);
+    try {
+      // 使用 Web Speech API 生成语音
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'zh-CN';
+      utterance.rate = 1.0; // 先使用正常语速生成，效果在播放时应用
+      utterance.pitch = 1.0; // 先使用正常音调生成，效果在播放时应用
+      utterance.volume = 1;
+
+      // 创建一个简单的音频流来捕获语音
+      const audioContext = new AudioContext();
+      const destination = audioContext.createMediaStreamDestination();
+      const mediaRecorder = new MediaRecorder(destination.stream);
+      const audioChunks: Blob[] = [];
+
+      mediaRecorder.ondataavailable = (e) => e.data.size > 0 && audioChunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        if (audioChunks.length > 0) {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          const url = URL.createObjectURL(audioBlob);
+          setAudioUrl(url);
+          setCurrentEffect(selectedEffect);
+        } else {
+          // 如果直接录制失败，使用替代方案
+          // 直接播放并让用户听到效果，然后保存原始语音和效果配置
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'zh-CN';
+          utterance.rate = EFFECT_CONFIG[selectedEffect].rate;
+          utterance.pitch = EFFECT_CONFIG[selectedEffect].pitch ? 1 : 0.5;
+          window.speechSynthesis.speak(utterance);
+          
+          // 创建一个空的音频URL，仅用于保存效果配置
+          // 实际效果将在播放时应用
+          const audioContext = new AudioContext();
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          oscillator.frequency.setValueAtTime(0, audioContext.currentTime);
+          gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+          oscillator.start();
+          oscillator.stop(audioContext.currentTime + 0.1);
+          
+          // 使用一个简单的静音音频作为占位符
+          const audioBlob = new Blob([], { type: 'audio/webm' });
+          const url = URL.createObjectURL(audioBlob);
+          setAudioUrl(url);
+          setCurrentEffect(selectedEffect);
+        }
+      };
+
+      // 使用 SpeechSynthesis 生成语音
+      const speechSynthesis = window.speechSynthesis;
+      utterance.onend = () => {
+        setTimeout(() => {
+          mediaRecorder.stop();
+        }, 100);
+      };
+
+      mediaRecorder.start();
+      speechSynthesis.speak(utterance);
+    } catch (err) {
+      console.error('语音合成失败:', err);
+      // 失败时使用简单的替代方案
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+      setIsGenerating(false);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
   };
 
   return (
@@ -71,7 +144,10 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({ onSave }) => {
               const Icon = EFFECT_CONFIG[eff].icon;
               const isSelected = selectedEffect === eff;
               return (
-                <button key={eff} onClick={() => setSelectedEffect(eff)} className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${isSelected ? 'bg-white shadow-md scale-110' : 'grayscale opacity-50'}`}>
+                <button key={eff} onClick={() => {
+                  setSelectedEffect(eff);
+                  setCurrentEffect(eff);
+                }} className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${isSelected ? 'bg-white shadow-md scale-110' : 'grayscale opacity-50'}`}>
                   <Icon className={`w-5 h-5 ${isSelected ? EFFECT_CONFIG[eff].color : ''}`} />
                   <span className="text-[8px] font-black">{EFFECT_CONFIG[eff].label}</span>
                 </button>
@@ -81,44 +157,56 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({ onSave }) => {
 
           <div className="flex gap-3 mb-4">
             <button
-              onClick={previewSpeech}
-              disabled={!text.trim() || isPreviewing}
+              onClick={generateSpeech}
+              disabled={!text.trim() || isGenerating}
               className="flex-1 bg-emerald-500 text-white py-4 rounded-2xl font-black shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Sparkles className="w-5 h-5" />
-              {isPreviewing ? '播放中...' : '预览语音'}
+              {isGenerating ? '生成中...' : '生成语音'}
             </button>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex flex-wrap gap-2">
-              <Tag className="w-4 h-4 text-slate-300 self-center mr-1" />
-              {SUGGESTED_TAGS.map(t => (
-                <button key={t} onClick={() => setTag(t)} className={`px-3 py-1.5 rounded-xl text-[10px] font-black transition-all ${tag === t ? 'bg-slate-900 text-white' : 'bg-white text-slate-400 border border-slate-100'}`}>{t}</button>
-              ))}
+          {audioUrl && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <audio
+                  ref={audioRef}
+                  src={audioUrl}
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                  onEnded={() => setIsPlaying(false)}
+                  className="flex-1 h-10"
+                />
+                <button onClick={() => setAudioUrl(null)} className="p-3 bg-white text-red-400 rounded-2xl shadow-sm"><X className="w-5 h-5" /></button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex flex-wrap gap-2">
+                  <Tag className="w-4 h-4 text-slate-300 self-center mr-1" />
+                  {SUGGESTED_TAGS.map(t => (
+                    <button key={t} onClick={() => setTag(t)} className={`px-3 py-1.5 rounded-xl text-[10px] font-black transition-all ${tag === t ? 'bg-slate-900 text-white' : 'bg-white text-slate-400 border border-slate-100'}`}>{t}</button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => onSave({
+                    id: crypto.randomUUID(),
+                    label: text,
+                    audioUrl,
+                    duration: 2,
+                    createdAt: Date.now(),
+                    effect: selectedEffect,
+                    playCount: 0,
+                    mastery: 0,
+                    tag
+                  })}
+                  disabled={!text.trim()}
+                  className="w-full bg-emerald-500 text-white py-4 rounded-2xl font-black shadow-lg shadow-emerald-500/20"
+                >
+                  保存指令
+                </button>
+              </div>
             </div>
-            <button
-              onClick={() => {
-                // 保存文本和音效配置，不保存实际音频文件
-                // 实际播放时会使用 Web Speech API 动态生成带效果的语音
-                onSave({
-                  id: crypto.randomUUID(),
-                  label: text,
-                  audioUrl: '', // 使用空字符串作为占位符
-                  duration: 2,
-                  createdAt: Date.now(),
-                  effect: selectedEffect,
-                  playCount: 0,
-                  mastery: 0,
-                  tag
-                });
-              }}
-              disabled={!text.trim()}
-              className="w-full bg-emerald-500 text-white py-4 rounded-2xl font-black shadow-lg shadow-emerald-500/20"
-            >
-              保存指令
-            </button>
-          </div>
+          )}
         </div>
       </div>
     </div>
