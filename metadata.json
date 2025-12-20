@@ -1,0 +1,8 @@
+
+{
+  "name": "鹦鹉学舌助手",
+  "description": "一个互动式鹦鹉训练套件，支持录制短语、定时训练、循环播放以及科学的训练策略管理。",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
