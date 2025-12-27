@@ -176,7 +176,7 @@ npm run preview
 
 如果您有任何问题或建议，请通过以下方式联系我们：
 - 提交 Issue
-- 发送邮件至 [您的邮箱地址]
+- 发送邮件至 dinliudin648@gmail.com
 
 ---
 
