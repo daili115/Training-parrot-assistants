@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary error logs
+errors.txt
+errors_final.txt
+errors_post.txt
+
+# Wrangler
+.wrangler

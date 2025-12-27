@@ -1,0 +1,116 @@
+import React from 'react';
+import { X, Trophy, Lock } from 'lucide-react';
+import { Badge } from '../types';
+import { BADGE_DEFINITIONS } from '../utils/gamification';
+
+interface BadgeModalProps {
+    unlockedBadges: Badge[];
+    newBadge: Badge | null;
+    onClose: () => void;
+    onAckNewBadge: () => void;
+}
+
+const BadgeModal: React.FC<BadgeModalProps> = ({ unlockedBadges, newBadge, onClose, onAckNewBadge }) => {
+    const isNewBadgeView = !!newBadge;
+    const unlockedIds = new Set(unlockedBadges.map(b => b.id));
+
+    if (isNewBadgeView && newBadge) {
+        return (
+            <div className="fixed inset-0 z-[110] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-6 animate-in fade-in duration-300">
+                <div className="bg-white dark:bg-slate-800 rounded-[40px] p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden animate-in zoom-in-95 duration-500">
+                    {/* Confetti effect background (simplified as gradients) */}
+                    <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-amber-100/50 to-transparent dark:from-amber-900/20" />
+
+                    <div className="relative z-10 flex flex-col items-center">
+                        <div className="w-24 h-24 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mb-6 shadow-inner ring-4 ring-amber-50 dark:ring-amber-900/20">
+                            <span className="text-5xl animate-bounce">{newBadge.icon}</span>
+                        </div>
+
+                        <h2 className="text-2xl font-black text-amber-500 mb-2 uppercase tracking-wide">勋章解锁!</h2>
+                        <h3 className="text-3xl font-black text-slate-800 dark:text-white mb-4">{newBadge.name}</h3>
+                        <p className="text-slate-500 dark:text-slate-400 font-medium mb-8 bg-slate-50 dark:bg-slate-700/50 px-4 py-2 rounded-2xl">
+                            {newBadge.description}
+                        </p>
+
+                        <button
+                            onClick={onAckNewBadge}
+                            className="w-full py-4 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white rounded-2xl font-black shadow-lg shadow-orange-500/20 active:scale-95 transition-all"
+                        >
+                            太棒了！
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 md:p-8 animate-in fade-in run-duration-300">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[85vh] rounded-[40px] flex flex-col shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden">
+                <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900 sticky top-0 z-10">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-amber-100 dark:bg-amber-900/20 rounded-2xl">
+                            <Trophy className="w-6 h-6 text-amber-500" />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-black text-slate-800 dark:text-white">勋章墙</h2>
+                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Achievements</p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className="p-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-2xl transition-all"
+                    >
+                        <X className="w-6 h-6" />
+                    </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-8 bg-slate-50 dark:bg-slate-950/50">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        {BADGE_DEFINITIONS.map((def) => {
+                            const isUnlocked = unlockedIds.has(def.id);
+                            const unlockedInfo = unlockedBadges.find(b => b.id === def.id);
+
+                            return (
+                                <div
+                                    key={def.id}
+                                    className={`relative p-6 rounded-3xl flex flex-col items-center text-center gap-4 transition-all ${isUnlocked
+                                            ? 'bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700'
+                                            : 'bg-slate-100 dark:bg-slate-900/50 grayscale opacity-60 border border-transparent'
+                                        }`}
+                                >
+                                    <div className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl shadow-sm ${isUnlocked ? 'bg-amber-50 dark:bg-amber-900/10' : 'bg-slate-200 dark:bg-slate-800'
+                                        }`}>
+                                        {def.icon}
+                                    </div>
+                                    <div>
+                                        <h3 className="font-black text-slate-800 dark:text-white mb-1 text-sm">{def.name}</h3>
+                                        <p className="text-[10px] text-slate-400 font-bold leading-tight">{def.description}</p>
+                                    </div>
+
+                                    {isUnlocked ? (
+                                        <div className="absolute top-4 right-4 text-[10px] font-black text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded-full">
+                                            已获取
+                                        </div>
+                                    ) : (
+                                        <div className="absolute top-4 right-4">
+                                            <Lock className="w-3 h-3 text-slate-400" />
+                                        </div>
+                                    )}
+
+                                    {isUnlocked && unlockedInfo && (
+                                        <div className="mt-2 text-[9px] text-slate-300 font-medium">
+                                            {new Date(unlockedInfo.unlockedAt).toLocaleDateString()}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default BadgeModal;

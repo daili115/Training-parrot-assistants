@@ -47,7 +47,7 @@ const AICoach: React.FC<AICoachProps> = ({ phrases }) => {
           </div>
           <button 
             onClick={() => setAdvice(null)}
-            className="text-xs font-bold text-emerald-600 hover:text-emerald-700 mt-2 flex items-center gap-1"
+            className="text-xs font-bold text-emerald-600 hover:text-emerald-700 mt-2 flex items-center gap-1 dark:text-emerald-400 dark:hover:text-emerald-300"
           >
             <RefreshIcon className="w-3 h-3" />
             换一批建议
@@ -61,7 +61,7 @@ const AICoach: React.FC<AICoachProps> = ({ phrases }) => {
           <button 
             onClick={getAdvice}
             disabled={loading}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50 dark:bg-emerald-700 dark:hover:bg-emerald-600"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
             {loading ? '正在咨询导师...' : '生成训练策略'}
