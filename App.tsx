@@ -234,7 +234,7 @@ const App: React.FC = () => {
               </h2>
               <button
                 onClick={() => setShowTrainingTracker(true)}
-                className="text-[10px] font-black text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 flex items-center gap-1 transition-colors"
+                className="text-xs font-black text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 flex items-center gap-1 transition-all hover:gap-1.5 cursor-pointer bg-amber-100/50 dark:bg-amber-900/20 px-3 py-1 rounded-full shadow-sm hover:shadow-md active:scale-95"
               >
                 详情
                 <ChevronRight className="w-3 h-3" />
@@ -332,8 +332,8 @@ const App: React.FC = () => {
 
       {/* 全屏历史模态框 */}
       {showFullHistory && (
-        <div className="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300">
-          <div className="bg-slate-900 border border-white/10 w-full max-w-2xl max-h-[85vh] rounded-[40px] flex flex-col shadow-2xl animate-in zoom-in-95 duration-300">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 modal-overlay">
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 w-full max-w-2xl max-h-[85vh] rounded-[40px] flex flex-col shadow-2xl animate-scale-in">
             <div className="p-8 border-b border-white/10 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-emerald-500/20 rounded-2xl">

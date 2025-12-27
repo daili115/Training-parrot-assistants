@@ -11,7 +11,7 @@ import { notificationManager } from '../components/NotificationManager';
 import { BadgeDisplay, StreakProgress } from '../components/BadgeDisplay';
 import { BadgeNotification } from '../components/BadgeDisplay';
 import { AwardNotification } from '../types';
-import { Target, Flame, Calendar, Clock, Award, Play, Pause, RotateCcw } from 'lucide-react';
+import { Target, Flame, Calendar, Clock, Award, Play, Pause, RotateCcw, X, Activity } from 'lucide-react';
 
 interface TrainingTrackerProps {
   userId: string;
@@ -23,6 +23,7 @@ interface TrainingTrackerProps {
 
 export const TrainingTracker: React.FC<TrainingTrackerProps> = ({
   userId,
+  onClose,
   onTrainingStart,
   onTrainingEnd
 }) => {
@@ -144,167 +145,182 @@ export const TrainingTracker: React.FC<TrainingTrackerProps> = ({
 
   if (!isInitialized) {
     return (
-      <div className="flex items-center justify-center py-8">
+      <div className="fixed inset-0 z-[120] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* 勋章通知 */}
-      {badgeNotifications.map((notification, index) => (
-        <BadgeNotification
-          key={index}
-          notification={notification}
-          onClose={() => closeBadgeNotification(index)}
-        />
-      ))}
-
-      {/* 连续训练进度 */}
-      {userStreak && (
-        <StreakProgress
-          currentStreak={userStreak.currentStreak}
-          targetStreak={7}
-          showMotivation={true}
-        />
-      )}
-
-      {/* 训练控制面板 */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
-            <Target className="w-5 h-5 mr-2 text-orange-500" />
-            训练控制
-          </h3>
-          {isTrainingActive && (
-            <div className="text-2xl font-mono font-bold text-orange-600 dark:text-orange-400">
-              {formatTime(currentSessionDuration)}
+    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 md:p-8 modal-overlay">
+      <div className="bg-white dark:bg-slate-900 border border-white/10 w-full max-w-2xl max-h-[85vh] rounded-[40px] flex flex-col shadow-2xl animate-scale-in">
+        <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-orange-100 dark:bg-orange-900/20 rounded-2xl">
+              <Target className="w-6 h-6 text-orange-500" />
             </div>
-          )}
-        </div>
-
-        <div className="flex items-center justify-center space-x-4">
-          {!isTrainingActive ? (
-            <button
-              onClick={startTraining}
-              className="flex items-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors duration-200 shadow-lg hover:shadow-xl"
-            >
-              <Play className="w-5 h-5 mr-2" />
-              开始训练
-            </button>
-          ) : (
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={endTraining}
-                className="flex items-center px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors duration-200 shadow-lg hover:shadow-xl"
-              >
-                <Award className="w-5 h-5 mr-2" />
-                完成训练
-              </button>
-              <button
-                onClick={resetSession}
-                className="flex items-center px-4 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors duration-200"
-              >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                重置
-              </button>
-            </div>
-          )}
-        </div>
-
-        {isTrainingActive && (
-          <div className="mt-4 text-center">
-            <div className="inline-flex items-center px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 rounded-full text-sm font-medium">
-              <Flame className="w-4 h-4 mr-1" />
-              训练中...
+            <div>
+              <h2 className="text-xl font-black text-slate-800 dark:text-white">训练全景追踪</h2>
+              <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Training Statistics & Control</p>
             </div>
           </div>
-        )}
+          <button
+            onClick={onClose}
+            className="p-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-2xl transition-all"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-8 no-scrollbar space-y-8">
+          {/* 勋章通知 */}
+          <div className="space-y-4">
+            {badgeNotifications.map((notification, index) => (
+              <BadgeNotification
+                key={index}
+                notification={notification}
+                onClose={() => closeBadgeNotification(index)}
+              />
+            ))}
+          </div>
+
+          {/* 连续训练进度 */}
+          <div className="space-y-4">
+            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">连续训练进程</h4>
+            {userStreak && (
+              <StreakProgress
+                currentStreak={userStreak.currentStreak}
+                targetStreak={7}
+                showMotivation={true}
+              />
+            )}
+          </div>
+
+          {/* 训练控制面板 */}
+          <div className="space-y-4">
+            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">训练引擎控制</h4>
+            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-[32px] p-6 border border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-orange-500/10 rounded-xl">
+                    <Activity className="w-4 h-4 text-orange-500" />
+                  </div>
+                  <span className="font-black text-slate-700 dark:text-slate-200">训练会话状态</span>
+                </div>
+                {isTrainingActive && (
+                  <div className="px-4 py-2 bg-orange-500 text-white rounded-2xl font-mono font-bold text-xl shadow-lg shadow-orange-500/20">
+                    {formatTime(currentSessionDuration)}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col items-center justify-center gap-4">
+                {!isTrainingActive ? (
+                  <button
+                    onClick={startTraining}
+                    className="w-full flex items-center justify-center gap-3 px-8 py-5 bg-gradient-to-r from-orange-400 to-amber-500 hover:from-orange-500 hover:to-amber-600 text-white rounded-3xl font-black transition-all shadow-xl shadow-orange-500/20 active:scale-95"
+                  >
+                    <Play className="w-6 h-6 fill-current" />
+                    <span className="text-lg">开启今日特训</span>
+                  </button>
+                ) : (
+                  <div className="grid grid-cols-2 gap-4 w-full">
+                    <button
+                      onClick={endTraining}
+                      className="flex items-center justify-center gap-2 px-6 py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-3xl font-black transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+                    >
+                      <Award className="w-5 h-5" />
+                      <span>结算训练成果</span>
+                    </button>
+                    <button
+                      onClick={resetSession}
+                      className="flex items-center justify-center gap-2 px-6 py-5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-3xl font-black transition-all active:scale-95"
+                    >
+                      <RotateCcw className="w-5 h-5" />
+                      <span>重置本番</span>
+                    </button>
+                  </div>
+                )}
+
+                {isTrainingActive && (
+                  <div className="mt-2 flex items-center gap-2 text-orange-500 font-bold text-sm animate-pulse">
+                    <Flame className="w-4 h-4" />
+                    <span>正在进行高强度学习...</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 训练统计 */}
+          <div className="space-y-4">
+            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">全量数据分析</h4>
+            {userStats && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-6 rounded-3xl">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase">训练总日</span>
+                    <Calendar className="w-4 h-4 text-blue-500" />
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-black text-slate-800 dark:text-white">{userStats.totalTrainingDays}</span>
+                    <span className="text-xs text-slate-400 font-bold">DAYS</span>
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-6 rounded-3xl">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase">累计时长</span>
+                    <Clock className="w-4 h-4 text-emerald-500" />
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-black text-slate-800 dark:text-white">{userStats.totalDuration}</span>
+                    <span className="text-xs text-slate-400 font-bold">MINS</span>
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-6 rounded-3xl">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase">最长连胜</span>
+                    <Flame className="w-4 h-4 text-orange-500" />
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-black text-slate-800 dark:text-white">{userStats.longestStreak}</span>
+                    <span className="text-xs text-slate-400 font-bold">DAYS</span>
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-6 rounded-3xl">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase">今日状态</span>
+                    <Award className="w-4 h-4 text-amber-500" />
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-xl font-black text-slate-800 dark:text-white">{todayRecord ? '已达标' : '未开始'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 勋章展示 */}
+          <div className="space-y-4">
+            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">勋章成就详情</h4>
+            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-[32px] p-4 border border-slate-100 dark:border-slate-800">
+              <BadgeDisplay compact={false} showDetails={true} />
+            </div>
+          </div>
+        </div>
+
+        <div className="p-8 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 shrink-0 flex justify-center">
+          <button
+            onClick={onClose}
+            className="px-10 py-4 bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-black rounded-2xl shadow-xl hover:scale-105 transition-all active:scale-95"
+          >
+            关闭追踪面板
+          </button>
+        </div>
       </div>
-
-      {/* 今日训练状态 */}
-      {todayRecord && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              <div>
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100">今日训练</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {todayRecord.sessionCount} 次训练，总计 {todayRecord.totalDuration} 分钟
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                ✅
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">已完成</div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 训练统计 */}
-      {userStats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">总训练天数</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {userStats.totalTrainingDays}
-                </p>
-              </div>
-              <Calendar className="w-8 h-8 text-blue-500 opacity-70" />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">总会话数</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {userStats.totalSessions}
-                </p>
-              </div>
-              <Clock className="w-8 h-8 text-green-500 opacity-70" />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">总时长</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {userStats.totalDuration}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">分钟</p>
-              </div>
-              <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
-                <span className="text-purple-600 dark:text-purple-400 text-lg">⏱️</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">最长连续</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {userStats.longestStreak}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">天</p>
-              </div>
-              <Flame className="w-8 h-8 text-orange-500 opacity-70" />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 勋章展示 */}
-      <BadgeDisplay compact={false} showDetails={true} />
     </div>
   );
 };

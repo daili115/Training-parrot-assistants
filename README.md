@@ -1,20 +1,183 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 鹦鹉学舌助手 - AI语音训练应用
 
-# Run and deploy your AI Studio app
+一款专为鹦鹉训练设计的现代化应用程序，利用AI技术帮助您高效地训练鹦鹉说话。
 
-This contains everything you need to run your app locally.
+## 📋 项目概述
 
-View your app in AI Studio: https://ai.studio/apps/drive/1KSpIvDPA2nQYzoVWBw5cUGdeGhT1fIJK
+鹦鹉学舌助手是一个交互式的鹦鹉训练工具包，具有以下核心功能：
+- 录制自定义短语并应用多种声音效果
+- 定时训练和循环播放机制
+- 科学的训练策略管理和进度跟踪
+- 游戏化元素（成就系统、连续训练奖励）
+- 实时噪音监测以优化训练环境
 
-## Run Locally
+## 🚀 主要特性
 
-**Prerequisites:**  Node.js
+### 🔊 录音与声音效果
+- 录制自定义训练短语
+- 14种专业声音效果（鹦鹉、婴儿、机器人等）
+- 音频淡入淡出处理
+- 支持标签分类管理
 
+### ⏰ 智能训练系统
+- 自适应播放间隔
+- 多种训练模式（顺序、随机、薄弱环节强化等）
+- 定时训练提醒
+- 沉浸式训练界面
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### 📊 进度追踪与统计
+- 训练历史记录
+- 连续训练天数追踪
+- 成就徽章系统
+- 数据导出与备份
+
+### 🎮 游戏化体验
+- 多种成就徽章可解锁
+- 连续训练奖励机制
+- 训练统计可视化展示
+
+## 🛠 技术栈
+
+- **前端框架**: React 19 (TypeScript)
+- **构建工具**: Vite 6
+- **UI组件库**: Lucide React 图标库
+- **状态管理**: React Hooks
+- **持久化存储**: localStorage
+- **PWA支持**: vite-plugin-pwa
+- **AI集成**: Google Gemini API
+
+## 📁 项目结构
+
+```
+鹦鹉学舌助手/
+├── components/           # React组件
+├── context/             # React上下文
+├── utils/               # 工具函数
+├── types.ts            # TypeScript类型定义
+├── App.tsx             # 主应用组件
+├── index.tsx           # 应用入口
+├── vite.config.ts      # Vite配置
+├── tsconfig.json       # TypeScript配置
+├── package.json        # 项目依赖
+└── .env.local          # 环境变量
+```
+
+## 🚀 快速开始
+
+### 环境要求
+- Node.js 18.x 或更高版本
+- npm 或 yarn 包管理器
+
+### 安装步骤
+
+1. 克隆项目仓库：
+```bash
+git clone <repository-url>
+cd 鹦鹉学舌助手
+```
+
+2. 安装依赖：
+```bash
+npm install
+```
+
+3. 配置环境变量：
+在 `.env.local` 文件中设置您的 Google Gemini API 密钥：
+```env
+GEMINI_API_KEY=your_actual_api_key_here
+```
+
+4. 启动开发服务器：
+```bash
+npm run dev
+```
+
+5. 构建生产版本：
+```bash
+npm run build
+```
+
+6. 预览生产构建：
+```bash
+npm run preview
+```
+
+## 🎯 使用指南
+
+### 1. 添加训练短语
+- 点击"新增录制"区域的麦克风按钮开始录音
+- 录制完成后可选择不同的声音效果预览
+- 为短语添加描述和标签后保存
+
+### 2. 开始训练
+- 点击顶部的"开启沉浸教学"按钮启动训练会话
+- 根据设置的参数自动播放训练短语
+- 实时显示训练进度和环境噪音水平
+
+### 3. 管理训练计划
+- 在"定时闹钟"部分设置每日训练提醒
+- 调整训练参数如播放间隔、音量等
+
+### 4. 查看统计数据
+- "最近训练"面板显示历史训练记录
+- "连续训练"模块追踪您的坚持程度
+- "教学库"显示所有已录制的短语
+
+## ⚙️ 配置选项
+
+### 训练参数
+- **播放音量**: 控制训练音频的音量大小
+- **播放间隔**: 设置短语间的停顿时间（1-30秒）
+- **声音淡入淡出**: 启用平滑的音频过渡效果
+
+### 训练模式
+- **顺序播放**: 按照添加顺序播放短语
+- **随机播放**: 随机顺序播放短语
+- **薄弱环节强化**: 优先播放掌握程度较低的短语
+- **最新优先**: 优先播放最新添加的短语
+
+## 🎨 UI 设计亮点
+
+- 响应式设计，适配各种屏幕尺寸
+- 深色/浅色主题切换
+- 直观的视觉反馈和动画效果
+- 清晰的数据可视化展示
+
+## 🔒 隐私与安全
+
+- 所有数据存储在本地浏览器中
+- 音频文件以Base64格式保存在localStorage中
+- 不会上传任何个人数据到外部服务器
+- 支持数据导出和备份功能
+
+## 🤝 贡献指南
+
+欢迎提交 Issue 和 Pull Request 来改进这个项目！
+
+### 开发流程
+1. Fork 本仓库
+2. 创建您的特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启一个 Pull Request
+
+## 📄 许可证
+
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+
+## 🙏 致谢
+
+- [Lucide Icons](https://lucide.dev/) - 优秀的开源图标库
+- [Vite](https://vitejs.dev/) - 下一代前端构建工具
+- [React](https://reactjs.org/) - 用于构建用户界面的JavaScript库
+- Google Gemini API - 强大的AI能力支持
+
+## 📞 联系方式
+
+如果您有任何问题或建议，请通过以下方式联系我们：
+- 提交 Issue
+- 发送邮件至 [您的邮箱地址]
+
+---
+
+*让您的鹦鹉成为真正的语言大师！*

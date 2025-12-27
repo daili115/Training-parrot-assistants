@@ -16,8 +16,8 @@ const BadgeModal: React.FC<BadgeModalProps> = ({ unlockedBadges, newBadge, onClo
 
     if (isNewBadgeView && newBadge) {
         return (
-            <div className="fixed inset-0 z-[110] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-6 animate-in fade-in duration-300">
-                <div className="bg-white dark:bg-slate-800 rounded-[40px] p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden animate-in zoom-in-95 duration-500">
+            <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 modal-overlay">
+                <div className="bg-white dark:bg-slate-800 rounded-[40px] p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden animate-scale-in">
                     {/* Confetti effect background (simplified as gradients) */}
                     <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-amber-100/50 to-transparent dark:from-amber-900/20" />
 
@@ -45,8 +45,8 @@ const BadgeModal: React.FC<BadgeModalProps> = ({ unlockedBadges, newBadge, onClo
     }
 
     return (
-        <div className="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 md:p-8 animate-in fade-in run-duration-300">
-            <div className="bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[85vh] rounded-[40px] flex flex-col shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 modal-overlay">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[85vh] rounded-[40px] flex flex-col shadow-2xl animate-scale-in overflow-hidden">
                 <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900 sticky top-0 z-10">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-amber-100 dark:bg-amber-900/20 rounded-2xl">
@@ -75,8 +75,8 @@ const BadgeModal: React.FC<BadgeModalProps> = ({ unlockedBadges, newBadge, onClo
                                 <div
                                     key={def.id}
                                     className={`relative p-6 rounded-3xl flex flex-col items-center text-center gap-4 transition-all ${isUnlocked
-                                            ? 'bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700'
-                                            : 'bg-slate-100 dark:bg-slate-900/50 grayscale opacity-60 border border-transparent'
+                                        ? 'bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700'
+                                        : 'bg-slate-100 dark:bg-slate-900/50 grayscale opacity-60 border border-transparent'
                                         }`}
                                 >
                                     <div className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl shadow-sm ${isUnlocked ? 'bg-amber-50 dark:bg-amber-900/10' : 'bg-slate-200 dark:bg-slate-800'
