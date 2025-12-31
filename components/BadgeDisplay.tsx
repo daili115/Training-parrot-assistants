@@ -71,25 +71,26 @@ export const BadgeDisplay: React.FC<BadgeDisplayProps> = ({
         {badges.map((badge) => (
           <div
             key={badge.id}
-            className="relative group cursor-pointer"
+            role="button"
+            className="relative group cursor-pointer badge-item"
             onClick={() => setSelectedBadge(badge)}
           >
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-lg transition-all duration-200 border-2 border-transparent hover:border-yellow-300 dark:hover:border-yellow-600">
-              <div className="text-center">
-                <div className="text-3xl mb-2">{badge.icon}</div>
-                <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
+            <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 md:p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-emerald-300 dark:hover:border-emerald-600 relative overflow-hidden group-hover:-translate-y-2">
+              <div className="absolute -right-4 -bottom-4 text-6xl opacity-10 group-hover:opacity-20 transition-opacity rotate-12">{badge.icon}</div>
+              <div className="text-center relative z-10">
+                <div className="text-4xl md:text-5xl mb-3 drop-shadow-md group-hover:scale-110 transition-transform">{badge.icon}</div>
+                <h4 className="font-black text-sm md:text-base text-slate-800 dark:text-white truncate">
                   {badge.name}
                 </h4>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {formatDate(badge.unlockedAt)}
-                </p>
+                <div className="mt-2 flex justify-center">
+                  <span className="text-[10px] bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full text-slate-500 font-bold uppercase tracking-tighter">
+                    {formatDate(badge.unlockedAt)}
+                  </span>
+                </div>
               </div>
 
-              {/* 悬停效果 */}
-              <div className="absolute inset-0 bg-yellow-100 dark:bg-yellow-900 opacity-0 group-hover:opacity-20 rounded-lg transition-opacity duration-200" />
-
-              {/* 光晕效果 */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-lg blur opacity-0 group-hover:opacity-30 transition-opacity duration-200" />
+              {/* Jungle overlay effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
           </div>
         ))}

@@ -113,28 +113,38 @@ const Recorder: React.FC<RecorderProps> = ({ onSave }) => {
   return (
     <div className="space-y-4">
       {!audioUrl ? (
-        <div className="flex flex-col items-center gap-4 py-8">
-          <div className="relative">
-            {isRecording && <div className="absolute inset-0 rounded-full bg-emerald-500 opacity-20 animate-ping" style={{ transform: `scale(${1 + dbLevel / 40})` }} />}
-            <button onClick={isRecording ? stopRecording : startRecording} className={`relative z-10 w-24 h-24 rounded-full flex items-center justify-center transition-all shadow-2xl ${isRecording ? 'bg-red-500' : 'bg-emerald-500'}`}>
-              {isRecording ? <Square className="text-white w-10 h-10 fill-current" /> : <Mic className="text-white w-10 h-10" />}
+        <div className="flex flex-col items-center gap-4 py-4 md:py-8">
+          <div className="relative group">
+            {isRecording && (
+              <div className="absolute inset-0 rounded-full bg-emerald-500 opacity-20 animate-ping" style={{ transform: `scale(${1 + dbLevel / 40})` }} />
+            )}
+            <button
+              onClick={isRecording ? stopRecording : startRecording}
+              className={`relative z-10 w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center transition-all shadow-2xl active:scale-95 border-8 border-white dark:border-slate-800  parrot-bounce ${isRecording ? 'bg-red-500 rotate-12' : 'bg-emerald-500 hover:scale-105'}`}
+            >
+              {isRecording ? <Square className="text-white w-10 h-10 md:w-12 md:h-12 fill-current" /> : <Mic className="text-white w-10 h-10 md:w-12 md:h-12" />}
             </button>
           </div>
-          <p className="text-sm font-bold text-slate-400 tracking-wide">{isRecording ? '录音中...' : '点击录制新指令'}</p>
+          <div className="text-center">
+            <p className="text-sm md:text-base font-black text-slate-700 dark:text-slate-200 tracking-wide">{isRecording ? '正在倾听您的声音...' : '点击鹦鹉开始录制'}</p>
+            <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">Ready to mimic you!</p>
+          </div>
         </div>
       ) : (
-        <div className="bg-slate-50 dark:bg-slate-700 p-6 rounded-[32px] border border-slate-200 dark:border-slate-600">
-          <div className="flex items-center gap-4 mb-6">
-            <audio
-              ref={audioRef}
-              src={audioUrl}
-              controls
-              className="flex-1 h-10"
-            />
-            <button onClick={() => setAudioUrl(null)} className="p-3 bg-white dark:bg-slate-700 text-red-400 dark:text-red-300 rounded-2xl shadow-sm hover:bg-slate-100 dark:hover:bg-slate-600 transition-all"><X className="w-5 h-5" /></button>
+        <div className="bg-slate-50 dark:bg-slate-700/50 p-6 md:p-8 rounded-[32px] md:rounded-[48px] border border-slate-100 dark:border-slate-600/50 animate-scale-in">
+          <div className="flex items-center gap-4 md:gap-6 mb-6 md:mb-8">
+            <div className="flex-1 bg-white dark:bg-slate-800 p-2 rounded-2xl shadow-inner">
+              <audio
+                ref={audioRef}
+                src={audioUrl}
+                controls
+                className="w-full h-10 md:h-12"
+              />
+            </div>
+            <button onClick={() => setAudioUrl(null)} className="p-3 md:p-4 bg-white dark:bg-slate-700 text-red-500 dark:text-red-400 rounded-2xl md:rounded-3xl shadow-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-all border border-transparent hover:border-red-200"><X className="w-6 h-6" /></button>
           </div>
 
-          <div className="grid grid-cols-5 gap-2 mb-6">
+          <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-2 md:gap-3 mb-6 md:mb-8">
             {(Object.keys(EFFECT_CONFIG) as VoiceEffect[]).map((eff) => {
               const Icon = EFFECT_ICONS[eff];
               const isSelected = selectedEffect === eff;
@@ -143,22 +153,22 @@ const Recorder: React.FC<RecorderProps> = ({ onSave }) => {
                 <button
                   key={eff}
                   onClick={() => setSelectedEffect(eff)}
-                  className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${isSelected ? 'bg-white shadow-md scale-110 dark:bg-slate-700' : 'grayscale opacity-50 hover:opacity-100 hover:bg-white hover:dark:bg-slate-700'}`}
+                  className={`flex flex-col items-center gap-2 p-2 md:p-3 rounded-2xl transition-all border-2 ${isSelected ? 'bg-white dark:bg-slate-600 border-emerald-400 shadow-lg scale-110' : 'bg-white/50 dark:bg-slate-800/50 border-transparent grayscale opacity-50 hover:opacity-100 hover:border-slate-200'}`}
                   title={config.label}
                 >
-                  <Icon className={`w-5 h-5 ${isSelected ? config.color : ''}`} />
-                  <span className="text-[8px] font-black">{config.label}</span>
+                  <Icon className={`w-5 h-5 md:w-6 md:h-6 ${isSelected ? config.color : 'text-slate-400 font-black'}`} />
+                  <span className={`text-[9px] md:text-[10px] font-black ${isSelected ? 'text-slate-800 dark:text-white' : 'text-slate-400'}`}>{config.label}</span>
                 </button>
               );
             })}
           </div>
 
-          <div className="space-y-4">
-            <input type="text" placeholder="给短语起个名..." className="w-full px-5 py-3 rounded-2xl border border-slate-200 focus:border-emerald-500 outline-none text-sm font-bold dark:bg-slate-600 dark:border-slate-500 dark:text-white" value={label} onChange={(e) => setLabel(e.target.value)} />
-            <div className="flex flex-wrap gap-2">
-              <Tag className="w-4 h-4 text-slate-300 dark:text-slate-500 self-center mr-1" />
+          <div className="space-y-3 md:space-y-4">
+            <input type="text" placeholder="给短语起个名..." className="w-full px-4 md:px-5 py-2.5 md:py-3 rounded-xl md:rounded-2xl border border-slate-200 dark:border-slate-600 focus:border-emerald-500 outline-none text-xs md:text-sm font-bold dark:bg-slate-600/50 dark:text-white" value={label} onChange={(e) => setLabel(e.target.value)} />
+            <div className="flex flex-wrap gap-1.5 md:gap-2">
+              <Tag className="w-3.5 h-3.5 md:w-4 md:h-4 text-slate-300 dark:text-slate-500 self-center mr-0.5" />
               {SUGGESTED_TAGS.map(t => (
-                <button key={t} onClick={() => setTag(t)} className={`px-3 py-1.5 rounded-xl text-[10px] font-black transition-all ${tag === t ? 'bg-slate-900 text-white dark:bg-slate-600' : 'bg-white text-slate-400 border border-slate-100 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600'}`}>{t}</button>
+                <button key={t} onClick={() => setTag(t)} className={`px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black transition-all  ${tag === t ? 'bg-slate-900 text-white dark:bg-slate-500' : 'bg-white text-slate-400 border border-slate-100 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600'}`}>{t}</button>
               ))}
             </div>
             <button
@@ -197,7 +207,7 @@ const Recorder: React.FC<RecorderProps> = ({ onSave }) => {
                 setAudioUrl(null);
               }}
               disabled={!label.trim() || !audioUrl}
-              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 md:py-4 rounded-xl md:rounded-2xl font-black shadow-lg shadow-emerald-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm md:text-base  parrot-bounce"
             >
               保存指令
             </button>

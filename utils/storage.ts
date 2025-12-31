@@ -1,4 +1,4 @@
-import { Phrase, TrainingSlot, TrainingOrder, TrainingSettings, SessionStats, Badge, TrainingRecord, UserStreak, StreakReward } from '../types';
+import { Phrase, TrainingSlot, TrainingOrder, TrainingSettings, SessionStats, Badge, TrainingRecord, UserStreak, StreakReward, ParrotPhoto } from '../types';
 
 const STORAGE_KEYS = {
   PHRASES: 'parrot_phrases_v3',
@@ -9,7 +9,8 @@ const STORAGE_KEYS = {
   THEME: 'theme',
   TRAINING_RECORDS: 'parrot_training_records',
   USER_STREAK: 'parrot_user_streak',
-  STREAK_REWARDS: 'parrot_streak_rewards'
+  STREAK_REWARDS: 'parrot_streak_rewards',
+  PHOTOS: 'parrot_photos'
 } as const;
 
 /**
@@ -285,5 +286,24 @@ export function saveStreakRewards(rewards: StreakReward[]): void {
     localStorage.setItem(STORAGE_KEYS.STREAK_REWARDS, JSON.stringify(rewards));
   } catch (error) {
     console.error('Failed to save streak rewards:', error);
+  }
+}
+
+/**
+ * 加载鹦鹉照片
+ */
+export function loadPhotos(): ParrotPhoto[] {
+  const data = localStorage.getItem(STORAGE_KEYS.PHOTOS);
+  return safeParseJSON(data, []);
+}
+
+/**
+ * 保存鹦鹉照片
+ */
+export function savePhotos(photos: ParrotPhoto[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.PHOTOS, JSON.stringify(photos));
+  } catch (error) {
+    console.error('Failed to save photos:', error);
   }
 }

@@ -1,29 +1,41 @@
 :root {
-  /* Light mode colors */
-  --text-primary: #1f2937;
-  --text-secondary: #4b5563;
-  --background: #ffffff;
-  --surface: #f9fafb;
-  --border: #d1d5db;
-  --accent: #3b82f6;
-  --hover: #f3f4f6;
-  --focus: #e5e7eb;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #ef4444;
+  /* Light mode colors - Tropical Parrot Theme */
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --background: #f0fdf4;
+  /* Very light green */
+  --surface: rgba(255, 255, 255, 0.85);
+  --border: #e2e8f0;
+  --accent: #10b981;
+  /* Emerald Green */
+  --accent-secondary: #f59e0b;
+  /* Amber/Yellow for beak/accents */
+  --accent-tertiary: #ef4444;
+  /* Red for feathers */
+  --hover: #f1f5f9;
+  --focus: #3b82f6;
+  --success: #059669;
+  --warning: #d97706;
+  --error: #dc2626;
+  --parrot-blue: #3b82f6;
+  --parrot-red: #ef4444;
+  --parrot-yellow: #fbbf24;
+  --parrot-green: #10b981;
 }
 
 .dark {
-  /* Dark mode colors */
-  --text-primary: #f3f4f6;
-  --text-secondary: #9ca3af;
-  --background: #0f172a;
-  --surface: #1e293b;
-  --border: #334155;
-  --accent: #60a5fa;
-  --hover: #334155;
-  --focus: #475569;
-  --success: #34d399;
+  /* Dark mode colors - Deep Jungle Theme */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --background: #020617;
+  --surface: rgba(30, 41, 59, 0.7);
+  --border: #1e293b;
+  --accent: #34d399;
+  --accent-secondary: #fbbf24;
+  --accent-tertiary: #f87171;
+  --hover: #1e293b;
+  --focus: #60a5fa;
+  --success: #10b981;
   --warning: #fbbf24;
   --error: #f87171;
 }
@@ -51,6 +63,12 @@ body {
 
 .button:hover {
   background-color: var(--hover);
+  transform: translateY(-1px);
+}
+
+.button:active {
+  transform: scale(0.96);
+  transition: transform 0.2s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
 /* Text styles for dark mode */
@@ -206,7 +224,121 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
 }
 
-/* 动画及性能优化 */
+/* Tropical Decorations */
+.tropical-bg {
+  background-image: url('/tropical_bg.png');
+  background-repeat: repeat;
+  background-size: 400px;
+  background-attachment: fixed;
+  opacity: 0.1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.dark .tropical-bg {
+  opacity: 0.03;
+  filter: invert(1);
+}
+
+.bird-gradient {
+  background: linear-gradient(135deg, #10b981 0%, #3b82f6 50%, #f59e0b 100%);
+  background-size: 200% 200%;
+  animation: gradientFlow 10s ease infinite;
+}
+
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.parrot-mascot {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-15px) rotate(5deg);
+  }
+}
+
+.parrot-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.parrot-card::after {
+  content: '🦜';
+  position: absolute;
+  right: -10px;
+  bottom: -10px;
+  font-size: 4rem;
+  opacity: 0.05;
+  transform: rotate(15deg);
+  pointer-events: none;
+}
+
+.dark .parrot-card::after {
+  opacity: 0.1;
+}
+
+.feather-decoration {
+  width: 20px;
+  height: 4px;
+  border-radius: 2px;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+.feather-red {
+  background: var(--parrot-red);
+}
+
+.feather-blue {
+  background: var(--parrot-blue);
+}
+
+.feather-yellow {
+  background: var(--parrot-yellow);
+}
+
+.feather-green {
+  background: var(--parrot-green);
+}
+
+/* Custom Scrollbar Tropical */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--parrot-green), var(--parrot-blue));
+  border-radius: 10px;
+}
+
+.badge-item {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.badge-item:hover {
+  transform: scale(1.1) rotate(5deg);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -230,62 +362,105 @@ select:focus {
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.2s ease-out forwards;
-  will-change: opacity;
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
 .animate-scale-in {
-  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: transform, opacity;
+  animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* 优化毛玻璃效果性能 */
-.glass-panel {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  background: rgba(255, 255, 255, 0.7);
-  transform: translateZ(0);
-  /* 开启硬件加速 */
+/* Interaction Animations */
+/* IOS-Like Interaction Animations */
+button,
+[role="button"],
+.active-ios {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.3s ease,
+    filter 0.3s ease,
+    box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  cursor: pointer;
 }
 
-.dark .glass-panel {
-  background: rgba(15, 23, 42, 0.8);
+button:active,
+[role="button"]:active,
+.active-ios:active {
+  transform: scale(0.95) !important;
+  opacity: 0.75;
+  filter: brightness(0.92);
+  transition: transform 0.1s cubic-bezier(0, 0, 0.2, 1) !important;
 }
 
-.modal-overlay {
-  background-color: rgba(15, 23, 42, 0.85);
-  animation: fadeIn 0.3s ease-out forwards;
-  will-change: opacity;
+/* Specific utility classes for tailwind-like patterns used in the project */
+.active-scale-down:active,
+.active\:scale-95:active {
+  transform: scale(0.95) !important;
+  transition: transform 0.1s cubic-bezier(0, 0, 0.2, 1) !important;
 }
 
-@keyframes shimmer {
+.active\:scale-90:active {
+  transform: scale(0.90) !important;
+  transition: transform 0.1s cubic-bezier(0, 0, 0.2, 1) !important;
+}
+
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+  background-repeat: no-repeat;
+  background-position: 50%;
+  transform: scale(10, 10);
+  opacity: 0;
+  transition: transform 0.5s, opacity 1s;
+}
+
+.ripple-effect:active::after {
+  transform: scale(0, 0);
+  opacity: 0.3;
+  transition: 0s;
+}
+
+/* Parrot Bounce Animation for specific buttons */
+.parrot-bounce:active {
+  animation: parrotBounce 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes parrotBounce {
   0% {
-    background-position: -1000px 0;
+    transform: scale(1);
   }
 
-  100% {
-    background-position: 1000px 0;
-  }
-}
-
-.shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite;
-}
-
-@keyframes pulse-subtle {
-
-  0%,
-  100% {
-    opacity: 1;
+  25% {
+    transform: scale(0.9) rotate(-3deg);
   }
 
   50% {
-    opacity: 0.7;
+    transform: scale(1.1) rotate(3deg);
+  }
+
+  75% {
+    transform: scale(0.95) rotate(-1deg);
+  }
+
+  100% {
+    transform: scale(1);
   }
 }
 
-.pulse-subtle {
-  animation: pulse-subtle 2s infinite;
+.btn-hover-glow:hover {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
 }

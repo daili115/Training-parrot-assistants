@@ -11,7 +11,7 @@ import { notificationManager } from '../components/NotificationManager';
 import { BadgeDisplay, StreakProgress } from '../components/BadgeDisplay';
 import { BadgeNotification } from '../components/BadgeDisplay';
 import { AwardNotification } from '../types';
-import { Target, Flame, Calendar, Clock, Award, Play, Pause, RotateCcw, X, Activity } from 'lucide-react';
+import { Target, Flame, Calendar, Clock, Award, Play, Pause, RotateCcw, X, Activity, Bird } from 'lucide-react';
 
 interface TrainingTrackerProps {
   userId: string;
@@ -152,41 +152,52 @@ export const TrainingTracker: React.FC<TrainingTrackerProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 md:p-8 modal-overlay">
-      <div className="bg-white dark:bg-slate-900 border border-white/10 w-full max-w-2xl max-h-[85vh] rounded-[40px] flex flex-col shadow-2xl animate-scale-in">
-        <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-orange-100 dark:bg-orange-900/20 rounded-2xl">
-              <Target className="w-6 h-6 text-orange-500" />
+    <div className="fixed inset-0 z-[120] flex items-center justify-center p-2 md:p-8 modal-overlay">
+      <div className="bg-white dark:bg-slate-900 border border-white/10 w-full max-w-2xl max-h-[95vh] md:max-h-[85vh] rounded-[24px] md:rounded-[40px] flex flex-col shadow-2xl animate-scale-in">
+        <div className="p-5 md:p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 relative overflow-hidden">
+          {/* Decorative Mascot */}
+          <div className="absolute -right-4 -top-2 w-20 md:w-28 opacity-20 pointer-events-none transform rotate-12">
+            <img src="/parrot_mascot.png" alt="Mascot" className="w-full h-auto" />
+          </div>
+
+          <div className="flex items-center gap-3 md:gap-4 relative z-10">
+            <div className="p-2 md:p-3 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl md:rounded-2xl border border-emerald-200 dark:border-emerald-800 shadow-sm">
+              <Bird className="w-5 h-5 md:w-6 md:h-6 text-emerald-600 animate-bounce" />
             </div>
-            <div>
-              <h2 className="text-xl font-black text-slate-800 dark:text-white">训练全景追踪</h2>
-              <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Training Statistics & Control</p>
+            <div className="min-w-0">
+              <div className="flex gap-1 mb-1">
+                <span className="feather-decoration feather-red !w-3"></span>
+                <span className="feather-decoration feather-green !w-3"></span>
+              </div>
+              <h2 className="text-lg md:text-xl font-black text-slate-800 dark:text-white truncate">训练全景追踪</h2>
+              <p className="text-[9px] md:text-xs text-slate-400 font-bold uppercase tracking-widest">Training Statistics & Insights</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-2xl transition-all"
+            className="p-2 md:p-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-xl md:rounded-2xl transition-all relative z-10"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 md:w-6 md:h-6" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8 no-scrollbar space-y-8">
+        <div className="flex-1 overflow-y-auto p-5 md:p-8 no-scrollbar space-y-6 md:space-y-8">
           {/* 勋章通知 */}
-          <div className="space-y-4">
-            {badgeNotifications.map((notification, index) => (
-              <BadgeNotification
-                key={index}
-                notification={notification}
-                onClose={() => closeBadgeNotification(index)}
-              />
-            ))}
-          </div>
+          {badgeNotifications.length > 0 && (
+            <div className="space-y-4">
+              {badgeNotifications.map((notification, index) => (
+                <BadgeNotification
+                  key={index}
+                  notification={notification}
+                  onClose={() => closeBadgeNotification(index)}
+                />
+              ))}
+            </div>
+          )}
 
           {/* 连续训练进度 */}
-          <div className="space-y-4">
-            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">连续训练进程</h4>
+          <div className="space-y-3 md:space-y-4">
+            <h4 className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">连续训练进程</h4>
             {userStreak && (
               <StreakProgress
                 currentStreak={userStreak.currentStreak}
@@ -197,18 +208,18 @@ export const TrainingTracker: React.FC<TrainingTrackerProps> = ({
           </div>
 
           {/* 训练控制面板 */}
-          <div className="space-y-4">
-            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">训练引擎控制</h4>
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-[32px] p-6 border border-slate-100 dark:border-slate-800">
-              <div className="flex items-center justify-between mb-8">
+          <div className="space-y-3 md:space-y-4">
+            <h4 className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">训练引擎控制</h4>
+            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-[24px] md:rounded-[32px] p-5 md:p-6 border border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between mb-6 md:mb-8">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-orange-500/10 rounded-xl">
+                  <div className="p-1.5 md:p-2 bg-orange-500/10 rounded-lg md:rounded-xl">
                     <Activity className="w-4 h-4 text-orange-500" />
                   </div>
-                  <span className="font-black text-slate-700 dark:text-slate-200">训练会话状态</span>
+                  <span className="text-sm md:text-base font-black text-slate-700 dark:text-slate-200">训练会话状态</span>
                 </div>
                 {isTrainingActive && (
-                  <div className="px-4 py-2 bg-orange-500 text-white rounded-2xl font-mono font-bold text-xl shadow-lg shadow-orange-500/20">
+                  <div className="px-3 md:px-4 py-1.5 md:py-2 bg-orange-500 text-white rounded-xl md:rounded-2xl font-mono font-bold text-lg md:text-xl shadow-lg shadow-orange-500/20">
                     {formatTime(currentSessionDuration)}
                   </div>
                 )}
@@ -218,32 +229,32 @@ export const TrainingTracker: React.FC<TrainingTrackerProps> = ({
                 {!isTrainingActive ? (
                   <button
                     onClick={startTraining}
-                    className="w-full flex items-center justify-center gap-3 px-8 py-5 bg-gradient-to-r from-orange-400 to-amber-500 hover:from-orange-500 hover:to-amber-600 text-white rounded-3xl font-black transition-all shadow-xl shadow-orange-500/20 active:scale-95"
+                    className="w-full flex items-center justify-center gap-3 px-6 py-4 md:py-5 bg-gradient-to-r from-orange-400 to-amber-500 hover:from-orange-500 hover:to-amber-600 text-white rounded-2xl md:rounded-3xl font-black transition-all shadow-xl shadow-orange-500/20 active:scale-95  parrot-bounce"
                   >
-                    <Play className="w-6 h-6 fill-current" />
-                    <span className="text-lg">开启今日特训</span>
+                    <Play className="w-5 h-5 md:w-6 md:h-6 fill-current" />
+                    <span className="text-base md:text-lg">开启今日特训</span>
                   </button>
                 ) : (
-                  <div className="grid grid-cols-2 gap-4 w-full">
+                  <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3 md:gap-4 w-full">
                     <button
                       onClick={endTraining}
-                      className="flex items-center justify-center gap-2 px-6 py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-3xl font-black transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+                      className="flex items-center justify-center gap-2 px-6 py-4 md:py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl md:rounded-3xl font-black transition-all shadow-xl shadow-emerald-500/20 active:scale-95  parrot-bounce"
                     >
                       <Award className="w-5 h-5" />
-                      <span>结算训练成果</span>
+                      <span className="text-sm md:text-base">结算训练成果</span>
                     </button>
                     <button
                       onClick={resetSession}
-                      className="flex items-center justify-center gap-2 px-6 py-5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-3xl font-black transition-all active:scale-95"
+                      className="flex items-center justify-center gap-2 px-6 py-4 md:py-5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-2xl md:rounded-3xl font-black transition-all active:scale-95 "
                     >
                       <RotateCcw className="w-5 h-5" />
-                      <span>重置本番</span>
+                      <span className="text-sm md:text-base">重置本次</span>
                     </button>
                   </div>
                 )}
 
                 {isTrainingActive && (
-                  <div className="mt-2 flex items-center gap-2 text-orange-500 font-bold text-sm animate-pulse">
+                  <div className="mt-2 flex items-center gap-2 text-orange-500 font-bold text-xs md:text-sm animate-pulse">
                     <Flame className="w-4 h-4" />
                     <span>正在进行高强度学习...</span>
                   </div>
@@ -253,50 +264,50 @@ export const TrainingTracker: React.FC<TrainingTrackerProps> = ({
           </div>
 
           {/* 训练统计 */}
-          <div className="space-y-4">
-            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">全量数据分析</h4>
+          <div className="space-y-3 md:space-y-4">
+            <h4 className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">全量数据分析</h4>
             {userStats && (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-6 rounded-3xl">
+              <div className="grid grid-cols-2 gap-3 md:gap-4">
+                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-4 md:p-6 rounded-2xl md:rounded-3xl">
                   <div className="flex justify-between items-start mb-2">
-                    <span className="text-[10px] font-black text-slate-400 uppercase">训练总日</span>
-                    <Calendar className="w-4 h-4 text-blue-500" />
+                    <span className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase">训练总日</span>
+                    <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-500" />
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-black text-slate-800 dark:text-white">{userStats.totalTrainingDays}</span>
-                    <span className="text-xs text-slate-400 font-bold">DAYS</span>
+                    <span className="text-xl md:text-3xl font-black text-slate-800 dark:text-white">{userStats.totalTrainingDays}</span>
+                    <span className="text-[8px] md:text-xs text-slate-400 font-bold uppercase">Days</span>
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-6 rounded-3xl">
+                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-4 md:p-6 rounded-2xl md:rounded-3xl">
                   <div className="flex justify-between items-start mb-2">
-                    <span className="text-[10px] font-black text-slate-400 uppercase">累计时长</span>
-                    <Clock className="w-4 h-4 text-emerald-500" />
+                    <span className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase">累计时长</span>
+                    <Clock className="w-3.5 h-3.5 md:w-4 md:h-4 text-emerald-500" />
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-black text-slate-800 dark:text-white">{userStats.totalDuration}</span>
-                    <span className="text-xs text-slate-400 font-bold">MINS</span>
+                    <span className="text-xl md:text-3xl font-black text-slate-800 dark:text-white">{userStats.totalDuration}</span>
+                    <span className="text-[8px] md:text-xs text-slate-400 font-bold uppercase">Mins</span>
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-6 rounded-3xl">
+                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-4 md:p-6 rounded-2xl md:rounded-3xl">
                   <div className="flex justify-between items-start mb-2">
-                    <span className="text-[10px] font-black text-slate-400 uppercase">最长连胜</span>
-                    <Flame className="w-4 h-4 text-orange-500" />
+                    <span className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase">最长连练</span>
+                    <Flame className="w-3.5 h-3.5 md:w-4 md:h-4 text-orange-500" />
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-black text-slate-800 dark:text-white">{userStats.longestStreak}</span>
-                    <span className="text-xs text-slate-400 font-bold">DAYS</span>
+                    <span className="text-xl md:text-3xl font-black text-slate-800 dark:text-white">{userStats.longestStreak}</span>
+                    <span className="text-[8px] md:text-xs text-slate-400 font-bold uppercase">Days</span>
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-6 rounded-3xl">
+                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-4 md:p-6 rounded-2xl md:rounded-3xl">
                   <div className="flex justify-between items-start mb-2">
-                    <span className="text-[10px] font-black text-slate-400 uppercase">今日状态</span>
-                    <Award className="w-4 h-4 text-amber-500" />
+                    <span className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase">今日状态</span>
+                    <Award className="w-3.5 h-3.5 md:w-4 md:h-4 text-amber-500" />
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-xl font-black text-slate-800 dark:text-white">{todayRecord ? '已达标' : '未开始'}</span>
+                    <span className="text-sm md:text-xl font-black text-slate-800 dark:text-white">{todayRecord ? '已达标' : '未开始'}</span>
                   </div>
                 </div>
               </div>
@@ -304,18 +315,18 @@ export const TrainingTracker: React.FC<TrainingTrackerProps> = ({
           </div>
 
           {/* 勋章展示 */}
-          <div className="space-y-4">
-            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">勋章成就详情</h4>
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-[32px] p-4 border border-slate-100 dark:border-slate-800">
+          <div className="space-y-3 md:space-y-4">
+            <h4 className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">勋章成就详情</h4>
+            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-[24px] md:rounded-[32px] p-3 md:p-4 border border-slate-100 dark:border-slate-800">
               <BadgeDisplay compact={false} showDetails={true} />
             </div>
           </div>
         </div>
 
-        <div className="p-8 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 shrink-0 flex justify-center">
+        <div className="p-5 md:p-8 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 shrink-0 flex justify-center">
           <button
             onClick={onClose}
-            className="px-10 py-4 bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-black rounded-2xl shadow-xl hover:scale-105 transition-all active:scale-95"
+            className="w-full md:w-auto px-10 py-3.5 md:py-4 bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-black rounded-xl md:rounded-2xl shadow-xl hover:scale-[1.02] transition-all active:scale-95"
           >
             关闭追踪面板
           </button>

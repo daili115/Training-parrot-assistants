@@ -5,8 +5,8 @@ import {
   BarChart3, Dna, Trophy, X, ChevronRight,
   History, Filter, Calendar, ExternalLink
 } from 'lucide-react';
-import { Phrase, TrainingSlot, TrainingOrder, TrainingSettings, SessionStats, Badge, AwardNotification } from './types';
-import { loadPhrases, loadSlots, loadSettings, loadHistory, loadBadges, savePhrases, saveSlots, saveSettings, saveHistory, saveBadges } from './utils/storage';
+import { Phrase, TrainingSlot, TrainingOrder, TrainingSettings, SessionStats, Badge, AwardNotification, ParrotPhoto } from './types';
+import { loadPhrases, loadSlots, loadSettings, loadHistory, loadBadges, savePhrases, saveSlots, saveSettings, saveHistory, saveBadges, loadPhotos, savePhotos } from './utils/storage';
 import { checkNewBadges } from './utils/gamification';
 import { updateTodayTraining, calculateUserStreak, checkAndAwardStreakRewards, getUserTrainingStats } from './utils/trainingTracker';
 import { badgeManager } from './utils/badgeManager';
@@ -21,6 +21,7 @@ import { BadgeDisplay, StreakProgress } from './components/BadgeDisplay';
 import TrainingTracker from './components/TrainingTracker';
 import { useTheme } from './context/ThemeContext';
 import ToggleTheme from './components/ToggleTheme';
+import ParrotGallery from './components/ParrotGallery';
 
 const DEFAULT_SETTINGS: TrainingSettings = {
   loopInterval: 10,
@@ -37,6 +38,7 @@ const App: React.FC = () => {
   const [settings, setSettings] = useState<TrainingSettings>(DEFAULT_SETTINGS);
   const [history, setHistory] = useState<SessionStats[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
+  const [photos, setPhotos] = useState<ParrotPhoto[]>([]);
 
   const [isTraining, setIsTraining] = useState(false);
   const [selectedTag, setSelectedTag] = useState<string>('全部');
@@ -60,6 +62,7 @@ const App: React.FC = () => {
     setHistory(loadedHistory);
     const loadedBadges = loadBadges();
     setBadges(loadedBadges);
+    setPhotos(loadPhotos());
 
     // 初始化用户连续训练数据
     const streak = calculateUserStreak(userId);
@@ -94,7 +97,8 @@ const App: React.FC = () => {
     saveSettings(settings);
     saveHistory(history);
     saveBadges(badges);
-  }, [phrases, slots, settings, history, badges]);
+    savePhotos(photos);
+  }, [phrases, slots, settings, history, badges, photos]);
 
   const handleTrainingFinish = (stats: Omit<SessionStats, 'id' | 'date'>) => {
     setIsTraining(false);
@@ -141,62 +145,94 @@ const App: React.FC = () => {
   const tags = ['全部', ...Array.from(new Set(phrases.map(p => p.tag).filter(Boolean)))];
   const filteredPhrases = selectedTag === '全部' ? phrases : phrases.filter(p => p.tag === selectedTag);
 
+  const addPhoto = (photo: ParrotPhoto) => setPhotos(prev => [photo, ...prev]);
+  const deletePhoto = (id: string) => setPhotos(prev => prev.filter(p => p.id !== id));
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-900 pb-12">
-      <header className="bird-gradient dark:bg-slate-900 dark:text-white text-white px-6 py-6 md:p-8 shadow-2xl sticky top-0 z-30 rounded-b-[32px] md:rounded-b-[40px]">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-4 w-full sm:w-auto">
-            <div className="p-2.5 bg-white/20 rounded-xl md:rounded-2xl backdrop-blur-md shadow-inner">
-              <Bird className="w-8 h-8 md:w-10 md:h-10" />
+    <div className="min-h-screen bg-transparent pb-12 relative overflow-hidden">
+      {/* Tropical Background Pattern */}
+      <div className="tropical-bg" />
+
+      <header className="bird-gradient dark:from-slate-900 dark:to-slate-800 dark:text-white text-white px-4 py-8 md:px-8 md:py-12 shadow-2xl sticky top-0 z-30 rounded-b-[40px] md:rounded-b-[60px]">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-6 relative">
+
+          {/* Parrot Mascot Placement */}
+          <div className="absolute -top-16 -right-8 md:-top-24 md:-right-12 w-32 md:w-48 parrot-mascot pointer-events-none hidden sm:block">
+            <img src="/parrot_mascot.png" alt="Parrot Mascot" className="w-full h-auto drop-shadow-2xl" />
+          </div>
+
+          <div className="flex items-center gap-4 md:gap-6 w-full sm:w-auto relative z-10">
+            <div className="p-3 md:p-4 bg-white/20 rounded-2xl md:rounded-[32px] backdrop-blur-xl shadow-inner shrink-0 border border-white/30">
+              <Bird className="w-8 h-8 md:w-12 md:h-12 text-white animate-bounce" />
             </div>
-            <div>
-              <h1 className="text-xl md:text-2xl font-black tracking-tight text-white leading-none mb-1.5 md:mb-2">鹦鹉学舌大师</h1>
-              <div className="flex items-center gap-2 text-[9px] md:text-[10px] font-bold">
-                <span className="bg-white/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  累计播放 {phrases.reduce((acc, p) => acc + (p.playCount || 0), 0)} 次
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="feather-decoration feather-red"></span>
+                <span className="feather-decoration feather-yellow"></span>
+                <span className="feather-decoration feather-blue"></span>
+                <span className="feather-decoration feather-green"></span>
+              </div>
+              <h1 className="text-2xl md:text-4xl font-black tracking-tight text-white leading-tight mb-2 truncate drop-shadow-md">鹦鹉学舌大师 Pro</h1>
+              <div className="flex flex-wrap items-center gap-3 text-[10px] md:text-xs font-black">
+                <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-2 border border-white/10">
+                  <Play className="w-3 h-3 fill-current" />
+                  累计教学 {phrases.reduce((acc, p) => acc + (p.playCount || 0), 0)} 次
                 </span>
                 <button
                   onClick={() => setShowBadges(true)}
-                  className="bg-amber-400/20 hover:bg-amber-400/30 px-2 py-0.5 rounded-full flex items-center gap-1 transition-colors text-amber-200 cursor-pointer"
+                  className="bg-amber-400 hover:bg-amber-500 text-amber-950 px-3 py-1 rounded-full flex items-center gap-2 transition-all cursor-pointer shadow-lg active:scale-95 "
                 >
-                  <Trophy className="w-3 h-3" />
-                  <span>{badges.length} 枚勋章</span>
+                  <Trophy className="w-3 h-3 fill-current" />
+                  <span>{badges.length} 枚荣誉勋章</span>
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="flex gap-2">
-            <ToggleTheme />
+
+          <div className="flex gap-3 w-full sm:w-auto relative z-10">
+            <div className="shrink-0 flex items-center">
+              <ToggleTheme />
+            </div>
             <button
               onClick={() => phrases.length > 0 && setIsTraining(true)}
-              className={`w-full sm:w-auto group relative overflow-hidden flex items-center justify-center gap-3 px-8 py-4 rounded-2xl md:rounded-3xl font-black transition-all shadow-xl active:scale-95 ${isTraining ? 'bg-red-500 text-white' : 'bg-white text-emerald-600 hover:bg-emerald-50 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600'
+              className={`flex-1 sm:flex-none group relative overflow-hidden flex items-center justify-center gap-3 px-6 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-[32px] font-black transition-all shadow-2xl active:scale-95 hover:shadow-emerald-500/20 parrot-bounce  ${isTraining ? 'bg-red-500 text-white' : 'bg-white text-emerald-600 hover:bg-emerald-50 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600'
                 }`}
             >
-              <Play className="w-5 h-5 fill-current" />
-              <span>开启沉浸教学</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/0 via-emerald-400/10 to-emerald-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+              <Play className="w-5 h-5 md:w-6 md:h-6 fill-current" />
+              <span className="text-base md:text-xl">立即开始训练</span>
             </button>
           </div>
         </div>
       </header>
 
+
       <main className="max-w-5xl mx-auto p-4 md:p-8 mt-2 grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 dark:text-white">
         <div className="lg:col-span-8 space-y-6 md:space-y-8">
-          <section id="recorder-section" className="bg-white dark:bg-slate-800 rounded-[32px] md:rounded-[40px] p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-700 relative">
-            <h2 className="text-lg md:text-xl font-black mb-6 flex items-center gap-3 text-slate-800 dark:text-white">
-              <div className="p-2 bg-emerald-50 rounded-xl"><Mic className="w-5 h-5 text-emerald-500" /></div>
-              新增录制
+          <section id="recorder-section" className="bg-white dark:bg-slate-800 rounded-[32px] md:rounded-[48px] p-6 md:p-10 shadow-xl border border-slate-100 dark:border-slate-700 relative overflow-hidden parrot-card">
+            <h2 className="text-lg md:text-2xl font-black mb-6 md:mb-8 flex items-center justify-between text-slate-800 dark:text-white">
+              <div className="flex items-center gap-4">
+                <div className="p-2 md:p-3 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl md:rounded-2xl shadow-sm"><Mic className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" /></div>
+                <span>录制新词汇</span>
+              </div>
+              <div className="flex gap-1">
+                <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+                <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                <div className="w-2 h-2 rounded-full bg-red-400"></div>
+              </div>
             </h2>
+
             <Recorder onSave={addPhrase} />
           </section>
 
           <section>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 px-2">
-              <h2 className="text-lg md:text-xl font-black text-slate-800 dark:text-white flex items-center gap-3">
-                <div className="p-2 bg-blue-50 rounded-xl"><BarChart3 className="w-5 h-5 text-blue-500" /></div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 md:mb-6 px-1 md:px-2">
+              <h2 className="text-base md:text-xl font-black text-slate-800 dark:text-white flex items-center gap-3">
+                <div className="p-1.5 md:p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg md:rounded-xl"><BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-blue-500" /></div>
                 教学库 ({filteredPhrases.length})
               </h2>
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
                 <Filter className="w-4 h-4 text-slate-400 shrink-0" />
                 {tags.map(tag => (
                   <button
@@ -210,17 +246,35 @@ const App: React.FC = () => {
                 ))}
               </div>
             </div>
-            <div className="grid gap-4">
-              {filteredPhrases.map(phrase => (
-                <PhraseCard
-                  key={phrase.id}
-                  phrase={phrase}
-                  onDelete={removePhrase}
-                  onUpdateMastery={updateMastery}
-                  volume={settings.volume}
-                />
-              ))}
+            <div className="grid gap-4 md:gap-6">
+              {filteredPhrases.length > 0 ? (
+                filteredPhrases.map(phrase => (
+                  <PhraseCard
+                    key={phrase.id}
+                    phrase={phrase}
+                    onDelete={removePhrase}
+                    onUpdateMastery={updateMastery}
+                    volume={settings.volume}
+                  />
+                ))
+              ) : (
+                <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-[32px] p-12 text-center border-2 border-dashed border-slate-200 dark:border-slate-700">
+                  <div className="w-20 h-20 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Bird className="w-10 h-10 text-slate-300" />
+                  </div>
+                  <p className="text-slate-400 font-bold">还没有词汇哦，快去录制一个吧！</p>
+                </div>
+              )}
             </div>
+          </section>
+
+          <section className="bg-white dark:bg-slate-800 rounded-[32px] md:rounded-[48px] p-6 md:p-10 shadow-xl border border-slate-100 dark:border-slate-700 parrot-card">
+
+            <ParrotGallery
+              photos={photos}
+              onAddPhoto={addPhoto}
+              onDeletePhoto={deletePhoto}
+            />
           </section>
         </div>
 
@@ -412,7 +466,7 @@ const App: React.FC = () => {
             </div>
             <h2 className="text-2xl font-black text-slate-800 mb-2">训练完成！</h2>
             <p className="text-slate-400 text-sm mb-8">本次教学了 {lastSessionStats.totalPlays} 次，用时 {lastSessionStats.durationMinutes} 分钟。</p>
-            <button onClick={() => setLastSessionStats(null)} className="w-full py-4 bg-slate-900 text-white rounded-3xl font-black">收下了</button>
+            <button onClick={() => setLastSessionStats(null)} className="w-full py-4 bg-slate-900 text-white rounded-3xl font-black ">收下了</button>
           </div>
         </div>
       )}

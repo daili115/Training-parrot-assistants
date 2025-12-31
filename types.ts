@@ -101,3 +101,10 @@ export interface AwardNotification {
   badge?: Badge;
   createdAt: number;
 }
+
+export interface ParrotPhoto {
+  id: string;
+  url: string; // Base64 representation of the photo
+  timestamp: number;
+  note?: string;
+}

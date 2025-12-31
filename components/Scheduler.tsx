@@ -24,17 +24,17 @@ const Scheduler: React.FC<SchedulerProps> = ({ slots, onAdd, onRemove, onToggle 
           <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           <input
             type="time"
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+            className="w-full pl-9 md:pl-10 pr-3 md:pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-bold dark:bg-slate-700/50 dark:border-slate-600 dark:text-white"
             value={newTime}
             onChange={(e) => setNewTime(e.target.value)}
           />
         </div>
-        <button 
+        <button
           onClick={handleAdd}
-          className="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center gap-2 dark:bg-slate-700 dark:hover:bg-slate-600"
+          className="bg-slate-900 text-white px-4 md:px-6 py-2.5 rounded-xl font-black hover:bg-slate-800 transition-all flex items-center gap-2 dark:bg-slate-700 dark:hover:bg-slate-600 shadow-sm"
         >
           <Plus className="w-4 h-4" />
-          添加
+          <span className="hidden xs:inline">添加</span>
         </button>
       </div>
 
@@ -45,16 +45,14 @@ const Scheduler: React.FC<SchedulerProps> = ({ slots, onAdd, onRemove, onToggle 
           slots.map(slot => (
             <div
               key={slot.id}
-              className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
-                slot.enabled ? 'bg-amber-50 border-amber-100 dark:bg-amber-900/20 dark:border-amber-800' : 'bg-slate-50 border-slate-100 opacity-60 dark:bg-slate-700 dark:border-slate-600'
-              }`}
+              className={`flex items-center justify-between p-3 rounded-xl border transition-all ${slot.enabled ? 'bg-amber-50 border-amber-100 dark:bg-amber-900/20 dark:border-amber-800' : 'bg-slate-50 border-slate-100 opacity-60 dark:bg-slate-700 dark:border-slate-600'
+                }`}
             >
               <div className="flex items-center gap-3">
-                <button 
+                <button
                   onClick={() => onToggle(slot.id)}
-                  className={`p-1 rounded-full transition-colors ${
-                    slot.enabled ? 'text-amber-500' : 'text-slate-300'
-                  }`}
+                  className={`p-1 rounded-full transition-colors ${slot.enabled ? 'text-amber-500' : 'text-slate-300'
+                    }`}
                 >
                   {slot.enabled ? <CheckCircle2 className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
                 </button>
@@ -63,9 +61,9 @@ const Scheduler: React.FC<SchedulerProps> = ({ slots, onAdd, onRemove, onToggle 
                 </span>
               </div>
               <button
-                  onClick={() => onRemove(slot.id)}
-                  className="text-slate-400 hover:text-red-500 transition-colors dark:text-slate-400 dark:hover:text-red-400"
-                >
+                onClick={() => onRemove(slot.id)}
+                className="text-slate-400 hover:text-red-500 transition-colors dark:text-slate-400 dark:hover:text-red-400"
+              >
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>

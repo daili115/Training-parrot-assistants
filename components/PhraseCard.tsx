@@ -61,59 +61,59 @@ const PhraseCard: React.FC<PhraseCardProps> = ({ phrase, onDelete, onUpdateMaste
   const Icon = EFFECT_ICONS[phrase.effect || 'normal'];
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl md:rounded-3xl p-4 md:p-5 flex flex-col sm:flex-row items-center gap-4 md:gap-5 shadow-sm border border-slate-100 dark:border-slate-700 transition-all group relative overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex items-center gap-4 md:gap-6 shadow-md hover:shadow-xl border border-slate-100 dark:border-slate-700 transition-all group relative overflow-hidden parrot-card hover-lift">
       <div
-        className="absolute bottom-0 left-0 h-1 bg-emerald-400/20 transition-all duration-1000"
+        className="absolute bottom-0 left-0 h-1.5 bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-1000"
         style={{ width: `${phrase.mastery}%` }}
       />
 
-      <div className="flex items-center gap-4 md:gap-5 w-full">
+      <div className="flex items-center gap-4 md:gap-6 w-full min-w-0 z-10">
         <button
           onClick={togglePlay}
-          className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center transition-all shadow-inner shrink-0 ${isPlaying ? 'bg-emerald-500 text-white scale-105 shadow-emerald-200 dark:shadow-emerald-900/50' : 'bg-slate-50 text-slate-400 dark:bg-slate-700 dark:text-slate-300'
+          className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-[24px] flex items-center justify-center transition-all shadow-lg shrink-0  ${isPlaying ? 'bg-emerald-500 text-white scale-105 rotate-3' : 'bg-slate-50 text-emerald-600 dark:bg-slate-700 dark:text-emerald-400 hover:bg-emerald-50'
             }`}
         >
-          {isPlaying ? <Pause className="w-6 h-6 md:w-7 md:h-7 fill-current" /> : <Play className="w-6 h-6 md:w-7 md:h-7 fill-current ml-0.5 md:ml-1" />}
+          {isPlaying ? <Pause className="w-6 h-6 md:w-8 md:h-8 fill-current" /> : <Play className="w-6 h-6 md:w-8 md:h-8 fill-current ml-1" />}
         </button>
 
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-black text-slate-800 dark:text-white text-base md:text-lg truncate leading-none">{phrase.label}</h3>
-            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded-lg shrink-0">
-              <Icon className="w-2.5 h-2.5 md:w-3 md:h-3 text-slate-500 dark:text-slate-300" />
-              <span className="text-[7px] md:text-[8px] font-black text-slate-500 dark:text-slate-300 uppercase tracking-tighter">{phrase.effect}</span>
+        <div className="flex-1 min-w-0 py-1">
+          <div className="flex items-center gap-3 mb-1.5">
+            <h3 className="font-black text-slate-800 dark:text-white text-base md:text-xl truncate leading-tight group-hover:text-emerald-600 transition-colors">{phrase.label}</h3>
+            <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl shrink-0 border border-emerald-100 dark:border-emerald-800">
+              <Icon className="w-3 md:w-4 h-3 md:h-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-[8px] md:text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">{phrase.effect}</span>
             </div>
           </div>
-          <div className="flex items-center gap-3 text-[9px] md:text-[10px] text-slate-400 dark:text-slate-500 font-bold">
-            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-              <BarChart2 className="w-2.5 h-2.5 md:w-3 md:h-3" />
-              练习 {phrase.playCount || 0} 次
+          <div className="flex items-center gap-4 text-[10px] md:text-xs text-slate-400 dark:text-slate-500 font-bold">
+            <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded-full">
+              <BarChart2 className="w-3 md:w-4 h-3 md:h-4" />
+              {phrase.playCount || 0} 次
             </span>
-            <span className="hidden xs:flex items-center gap-1">
-              <Calendar className="w-2.5 h-2.5 md:w-3 md:h-3" />
+            <span className="hidden sm:flex items-center gap-1.5">
+              <Calendar className="w-3 md:w-4 h-3 md:h-4" />
               {new Date(phrase.createdAt).toLocaleDateString()}
             </span>
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-1.5">
-          <div className="flex items-center gap-1">
-            <Trophy className={`w-3.5 h-3.5 ${phrase.mastery > 80 ? 'text-amber-400' : 'text-slate-200'}`} />
-            <span className="text-[10px] md:text-xs font-black text-slate-600 dark:text-slate-300">{phrase.mastery}%</span>
+        <div className="flex flex-col items-end gap-2 shrink-0">
+          <div className="flex items-center gap-1.5">
+            <Trophy className={`w-4 h-4 md:w-5 md:h-5 ${phrase.mastery > 80 ? 'text-amber-400 drop-shadow-sm' : 'text-slate-200'}`} />
+            <span className="text-xs md:text-sm font-black text-slate-700 dark:text-slate-200">{phrase.mastery}%</span>
           </div>
           <input
             type="range" min="0" max="100" step="10"
             value={phrase.mastery}
             onChange={(e) => onUpdateMastery(phrase.id, parseInt(e.target.value))}
-            className="w-16 md:w-24 h-1 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+            className="w-16 md:w-28 h-2 bg-slate-100 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500"
           />
         </div>
 
         <button
           onClick={() => onDelete(phrase.id)}
-          className="p-1.5 text-slate-300 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 transition-all active:scale-90"
+          className="p-2 md:p-3 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:text-slate-500 dark:hover:text-red-400 dark:hover:bg-red-900/20 rounded-xl transition-all shrink-0"
         >
-          <Trash2 className="w-4.5 h-4.5 md:w-5 md:h-5" />
+          <Trash2 className="w-5 h-5 md:w-6 md:h-6" />
         </button>
       </div>
 
