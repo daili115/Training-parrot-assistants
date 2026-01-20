@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Bird, Mic, Play, Square, Settings, Clock,
   BarChart3, Dna, Trophy, X, ChevronRight,
-  History, Filter, Calendar, ExternalLink
+  History, Filter, Calendar, ExternalLink, Heart
 } from 'lucide-react';
 import { Phrase, TrainingSlot, TrainingOrder, TrainingSettings, SessionStats, Badge, AwardNotification, ParrotPhoto } from './types';
 import { loadPhrases, loadSlots, loadSettings, loadHistory, loadBadges, savePhrases, saveSlots, saveSettings, saveHistory, saveBadges, loadPhotos, savePhotos } from './utils/storage';
@@ -22,6 +22,7 @@ import TrainingTracker from './components/TrainingTracker';
 import { useTheme } from './context/ThemeContext';
 import ToggleTheme from './components/ToggleTheme';
 import ParrotGallery from './components/ParrotGallery';
+import ParrotCareTips from './components/ParrotCareTips';
 
 const DEFAULT_SETTINGS: TrainingSettings = {
   loopInterval: 10,
@@ -47,6 +48,7 @@ const App: React.FC = () => {
   const [showBadges, setShowBadges] = useState(false);
   const [newBadge, setNewBadge] = useState<Badge | null>(null);
   const [showTrainingTracker, setShowTrainingTracker] = useState(false);
+  const [showCareTips, setShowCareTips] = useState(false);
   const [userStreak, setUserStreak] = useState<any>(null);
   const [badgeNotifications, setBadgeNotifications] = useState<AwardNotification[]>([]);
 
@@ -194,6 +196,14 @@ const App: React.FC = () => {
             <div className="shrink-0 flex items-center">
               <ToggleTheme />
             </div>
+            <button
+              onClick={() => setShowCareTips(true)}
+              className="group relative overflow-hidden flex items-center justify-center gap-3 px-4 py-4 rounded-2xl md:rounded-[32px] font-black transition-all shadow-lg active:scale-95 bg-gradient-to-r from-emerald-400 to-cyan-500 text-white hover:shadow-emerald-500/25"
+              title="查看鹦鹉饲养技巧"
+            >
+              <Heart className="w-5 h-5" />
+              <span className="text-sm md:text-lg">饲养技巧</span>
+            </button>
             <button
               onClick={() => window.open('https://www.douyin.com/search/鹦鹉说话', '_blank')}
               className="group relative overflow-hidden flex items-center justify-center gap-3 px-4 py-4 rounded-2xl md:rounded-[32px] font-black transition-all shadow-lg active:scale-95 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white hover:shadow-pink-500/25"
@@ -492,6 +502,11 @@ const App: React.FC = () => {
             setUserStreak(streak);
           }}
         />
+      )}
+
+      {/* 饲养技巧模态框 */}
+      {showCareTips && (
+        <ParrotCareTips onClose={() => setShowCareTips(false)} />
       )}
 
       {/* 勋章通知 */}
