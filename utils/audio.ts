@@ -24,8 +24,18 @@ export const EFFECT_CONFIG: Record<string, {
 
 export const EFFECT_KEYS = Object.keys(EFFECT_CONFIG) as VoiceEffect[];
 
-
 export const SUGGESTED_TAGS = ['日常', '问候', '动作', '食物', '搞怪', '学习', '指令'];
+
+/**
+ * 获取效果配置
+ */
+export function getEffectConfig(effect: VoiceEffect): { rate: number; preservesPitch: boolean } {
+  const config = EFFECT_CONFIG[effect];
+  return {
+    rate: config.rate,
+    preservesPitch: config.pitch
+  };
+}
 
 
 /**

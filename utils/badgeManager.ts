@@ -1,5 +1,5 @@
-import { Badge, StreakReward, AwardNotification } from '../types';
-import { loadBadges, saveBadges } from './storage';
+import { Badge, StreakReward, AwardNotification, GameStats } from '../types';
+import { loadBadges, saveBadges, loadGameStats } from './storage';
 import { getUserTrainingStats } from './trainingTracker';
 
 
@@ -189,6 +189,72 @@ export class BadgeAwardManager {
   public hasBadge(badgeId: string): boolean {
     const badges = loadBadges();
     return badges.some(b => b.id === badgeId);
+  }
+
+  /**
+   * 授予游戏勋章
+   */
+  public awardGameBadges(): Badge[] {
+    const awardedBadges: Badge[] = [];
+    const gameStats = loadGameStats();
+    const badges = loadBadges();
+    const existingIds = new Set(badges.map(b => b.id));
+
+    // 游戏相关徽章
+    const gameMilestones = [
+      { games: 1, id: 'game_1', name: '初试身手', description: '完成 1 个游戏', icon: '🎮' },
+      { games: 10, id: 'game_10', name: '游戏爱好者', description: '完成 10 个游戏', icon: '🕹️' },
+      { games: 50, id: 'game_50', name: '游戏大师', description: '完成 50 个游戏', icon: '🏆' }
+    ];
+
+    gameMilestones.forEach(milestone => {
+      if (gameStats.gamesCompleted >= milestone.games && !existingIds.has(milestone.id)) {
+        const newBadge: Badge = {
+          id: milestone.id,
+          name: milestone.name,
+          description: milestone.description,
+          icon: milestone.icon,
+          unlockedAt: Date.now()
+        };
+        badges.push(newBadge);
+        awardedBadges.push(newBadge);
+        this.notifyAward(newBadge, 'milestone');
+      }
+    });
+
+    // 分数里程碑
+    if (gameStats.bestScore >= 1000 && !existingIds.has('score_1000')) {
+      const newBadge: Badge = {
+        id: 'score_1000',
+        name: '千分达人',
+        description: '单次游戏获得 1000 分',
+        icon: '💯',
+        unlockedAt: Date.now()
+      };
+      badges.push(newBadge);
+      awardedBadges.push(newBadge);
+      this.notifyAward(newBadge, 'milestone');
+    }
+
+    // 完美通关
+    if (gameStats.perfectGames >= 1 && !existingIds.has('perfect_game')) {
+      const newBadge: Badge = {
+        id: 'perfect_game',
+        name: '完美通关',
+        description: '获得游戏满分',
+        icon: '✨',
+        unlockedAt: Date.now()
+      };
+      badges.push(newBadge);
+      awardedBadges.push(newBadge);
+      this.notifyAward(newBadge, 'milestone');
+    }
+
+    if (awardedBadges.length > 0) {
+      saveBadges(badges);
+    }
+
+    return awardedBadges;
   }
 }
 

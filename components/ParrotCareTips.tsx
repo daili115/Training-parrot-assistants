@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Heart, Droplets, Apple, Home, ThermometerSun, Stethoscope, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Heart, Droplets, Apple, Home, ThermometerSun, Stethoscope, ChevronDown, ChevronUp, Bird, Sun, Star, Droplet } from 'lucide-react';
 
 interface Tip {
   id: string;
@@ -94,6 +94,54 @@ const careTips: Tip[] = [
       '常见疾病包括呼吸道感染、羽虱、念珠菌感染等'
     ],
     color: 'red'
+  },
+  {
+    id: '7',
+    category: '品种特护',
+    icon: <Bird className="w-5 h-5" />,
+    title: '小太阳鹦鹉 (Sun Conure)',
+    content: [
+      '性格活泼好动，需要较大的活动空间和丰富的玩具',
+      '喜欢攀爬和啃咬，提供安全的木质玩具和栖木',
+      '对温度敏感，冬季需保持20℃以上，避免受凉',
+      '社交性强，需要每天至少1-2小时互动时间',
+      '容易肥胖，控制高脂肪种子摄入，多给蔬果',
+      '叫声较大，适合有独立空间的家庭饲养'
+    ],
+    color: 'orange'
+  },
+  {
+    id: '8',
+    category: '品种特护',
+    icon: <Star className="w-5 h-5" />,
+    title: '玄凤鹦鹉 (Eclectus Parrot)',
+    content: [
+      '雌雄外观差异大，雌性绿色为主，雄性红色为主',
+      '需要高蛋白饮食，可添加煮熟的鸡蛋、豆类',
+      '对维生素A需求高，多给胡萝卜、南瓜等橙色蔬果',
+      '性格相对温和，适合初学者饲养',
+      '需要较大的笼子（至少80×80×100cm）',
+      '喜欢安静环境，避免嘈杂和突然的惊吓',
+      '换羽期需要额外营养补充'
+    ],
+    color: 'purple'
+  },
+  {
+    id: '9',
+    category: '品种特护',
+    icon: <Droplet className="w-5 h-5" />,
+    title: '彩虹吸蜜鹦鹉 (Rainbow Lorikeet)',
+    content: [
+      '主要以花蜜、花粉和水果为食，需要特殊饮食',
+      '可喂食专门的吸蜜鹦鹉粉（混合花粉和花蜜）',
+      '每天提供新鲜水果，如芒果、木瓜、香蕉',
+      '需要大量的水分，保持饮水充足',
+      '喜欢洗澡，每天喷水或提供浅水盆',
+      '性格活泼亲人，但需要大量互动时间',
+      '笼子需要有垂直空间供攀爬',
+      '粪便较稀，需勤清理保持卫生'
+    ],
+    color: 'rose'
   }
 ];
 
@@ -108,6 +156,9 @@ const colorClasses: Record<string, { bg: string; text: string; border: string; l
   cyan: { bg: 'bg-cyan-500', text: 'text-cyan-600', border: 'border-cyan-200', light: 'bg-cyan-50 dark:bg-cyan-900/20' },
   pink: { bg: 'bg-pink-500', text: 'text-pink-600', border: 'border-pink-200', light: 'bg-pink-50 dark:bg-pink-900/20' },
   red: { bg: 'bg-red-500', text: 'text-red-600', border: 'border-red-200', light: 'bg-red-50 dark:bg-red-900/20' },
+  orange: { bg: 'bg-orange-500', text: 'text-orange-600', border: 'border-orange-200', light: 'bg-orange-50 dark:bg-orange-900/20' },
+  purple: { bg: 'bg-purple-500', text: 'text-purple-600', border: 'border-purple-200', light: 'bg-purple-50 dark:bg-purple-900/20' },
+  rose: { bg: 'bg-rose-500', text: 'text-rose-600', border: 'border-rose-200', light: 'bg-rose-50 dark:bg-rose-900/20' },
 };
 
 const ParrotCareTips: React.FC<ParrotCareTipsProps> = ({ onClose }) => {

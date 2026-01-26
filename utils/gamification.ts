@@ -1,4 +1,4 @@
-import { SessionStats, Badge } from '../types';
+import { SessionStats, Badge, GameSession, GameStats } from '../types';
 
 export const BADGE_DEFINITIONS: Omit<Badge, 'unlockedAt'>[] = [
     {
@@ -18,6 +18,37 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlockedAt'>[] = [
         name: '百炼成钢',
         description: '累计播放超过 100 次',
         icon: '💯'
+    },
+    // 游戏相关徽章
+    {
+        id: 'game_1',
+        name: '初试身手',
+        description: '完成 1 个游戏',
+        icon: '🎮'
+    },
+    {
+        id: 'game_10',
+        name: '游戏爱好者',
+        description: '完成 10 个游戏',
+        icon: '🕹️'
+    },
+    {
+        id: 'game_50',
+        name: '游戏大师',
+        description: '完成 50 个游戏',
+        icon: '🏆'
+    },
+    {
+        id: 'score_1000',
+        name: '千分达人',
+        description: '单次游戏获得 1000 分',
+        icon: '💯'
+    },
+    {
+        id: 'perfect_game',
+        name: '完美通关',
+        description: '获得游戏满分',
+        icon: '✨'
     }
 ];
 
@@ -88,6 +119,47 @@ export function checkNewBadges(
     // Check Total Plays
     if (totalPlays >= 100 && !existingIds.has('total_100')) {
         const def = BADGE_DEFINITIONS.find(b => b.id === 'total_100')!;
+        newBadges.push({ ...def, unlockedAt: Date.now() });
+    }
+
+    return newBadges;
+}
+
+export function checkNewGameBadges(
+    gameStats: GameStats,
+    gameSessions: GameSession[],
+    currentBadges: Badge[]
+): Badge[] {
+    const newBadges: Badge[] = [];
+    const existingIds = new Set(currentBadges.map(b => b.id));
+
+    // Check Game 1
+    if (gameStats.gamesCompleted >= 1 && !existingIds.has('game_1')) {
+        const def = BADGE_DEFINITIONS.find(b => b.id === 'game_1')!;
+        newBadges.push({ ...def, unlockedAt: Date.now() });
+    }
+
+    // Check Game 10
+    if (gameStats.gamesCompleted >= 10 && !existingIds.has('game_10')) {
+        const def = BADGE_DEFINITIONS.find(b => b.id === 'game_10')!;
+        newBadges.push({ ...def, unlockedAt: Date.now() });
+    }
+
+    // Check Game 50
+    if (gameStats.gamesCompleted >= 50 && !existingIds.has('game_50')) {
+        const def = BADGE_DEFINITIONS.find(b => b.id === 'game_50')!;
+        newBadges.push({ ...def, unlockedAt: Date.now() });
+    }
+
+    // Check Score 1000
+    if (gameStats.bestScore >= 1000 && !existingIds.has('score_1000')) {
+        const def = BADGE_DEFINITIONS.find(b => b.id === 'score_1000')!;
+        newBadges.push({ ...def, unlockedAt: Date.now() });
+    }
+
+    // Check Perfect Game
+    if (gameStats.perfectGames >= 1 && !existingIds.has('perfect_game')) {
+        const def = BADGE_DEFINITIONS.find(b => b.id === 'perfect_game')!;
         newBadges.push({ ...def, unlockedAt: Date.now() });
     }
 

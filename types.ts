@@ -108,3 +108,39 @@ export interface ParrotPhoto {
   timestamp: number;
   note?: string;
 }
+
+// 游戏相关类型
+export type GameType = 'imitation' | 'memory' | 'rhythm' | 'puzzle';
+
+export interface Game {
+  id: string;
+  name: string;
+  description: string;
+  type: GameType;
+  difficulty: 'easy' | 'medium' | 'hard';
+  icon: string;
+  color: string;
+  highScore: number;
+  playCount: number;
+  lastPlayed: number | null;
+  unlockedAt: number;
+}
+
+export interface GameSession {
+  id: string;
+  gameId: string;
+  score: number;
+  duration: number; // seconds
+  date: number;
+  completed: boolean;
+  perfect: boolean;
+}
+
+export interface GameStats {
+  totalGamesPlayed: number;
+  totalScore: number;
+  bestScore: number;
+  gamesCompleted: number;
+  perfectGames: number;
+  lastPlayedDate: string | null;
+}

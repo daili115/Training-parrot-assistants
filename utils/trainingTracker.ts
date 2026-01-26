@@ -1,5 +1,5 @@
-import { TrainingRecord, UserStreak, StreakReward } from '../types';
-import { loadTrainingRecords, saveTrainingRecords, loadUserStreak, saveUserStreak, loadStreakRewards, saveStreakRewards } from './storage';
+import { TrainingRecord, UserStreak, StreakReward, GameStats } from '../types';
+import { loadTrainingRecords, saveTrainingRecords, loadUserStreak, saveUserStreak, loadStreakRewards, saveStreakRewards, loadGameStats } from './storage';
 
 /**
  * 获取日期字符串 (YYYY-MM-DD)
@@ -224,4 +224,11 @@ export function resetUserTrainingData(userId: string): void {
     reward.claimedAt = null;
   });
   saveStreakRewards(rewards);
+}
+
+/**
+ * 获取用户的游戏统计
+ */
+export function getUserGameStats(): GameStats {
+  return loadGameStats();
 }

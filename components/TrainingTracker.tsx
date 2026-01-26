@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Trophy } from 'lucide-react';
 import {
   updateTodayTraining,
   calculateUserStreak,
   checkAndAwardStreakRewards,
   getUserTrainingStats,
-  getTodayTrainingRecord
+  getTodayTrainingRecord,
+  getUserGameStats
 } from '../utils/trainingTracker';
 import { badgeManager } from '../utils/badgeManager';
 import { notificationManager } from '../components/NotificationManager';
 import { BadgeDisplay, StreakProgress } from '../components/BadgeDisplay';
 import { BadgeNotification } from '../components/BadgeDisplay';
-import { AwardNotification } from '../types';
-import { Target, Flame, Calendar, Clock, Award, Play, Pause, RotateCcw, X, Activity, Bird } from 'lucide-react';
+import { AwardNotification, GameStats } from '../types';
+import { Target, Flame, Calendar, Clock, Award, Play, Pause, RotateCcw, X, Activity, Bird, Gamepad2 } from 'lucide-react';
 
 interface TrainingTrackerProps {
   userId: string;
@@ -33,6 +35,7 @@ export const TrainingTracker: React.FC<TrainingTrackerProps> = ({
   const [userStats, setUserStats] = useState<any>(null);
   const [userStreak, setUserStreak] = useState<any>(null);
   const [todayRecord, setTodayRecord] = useState<any>(null);
+  const [gameStats, setGameStats] = useState<GameStats | null>(null);
   const [badgeNotifications, setBadgeNotifications] = useState<AwardNotification[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -42,10 +45,12 @@ export const TrainingTracker: React.FC<TrainingTrackerProps> = ({
       const stats = getUserTrainingStats(userId);
       const streak = calculateUserStreak(userId);
       const todayRec = getTodayTrainingRecord(userId);
+      const gameStats = getUserGameStats();
 
       setUserStats(stats);
       setUserStreak(streak);
       setTodayRecord(todayRec);
+      setGameStats(gameStats);
       setIsInitialized(true);
     };
 
@@ -308,6 +313,58 @@ export const TrainingTracker: React.FC<TrainingTrackerProps> = ({
                   </div>
                   <div className="flex items-baseline gap-1">
                     <span className="text-sm md:text-xl font-black text-slate-800 dark:text-white">{todayRecord ? '已达标' : '未开始'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 游戏统计 */}
+          <div className="space-y-3 md:space-y-4">
+            <h4 className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">游戏数据统计</h4>
+            {gameStats && (
+              <div className="grid grid-cols-2 gap-3 md:gap-4">
+                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-4 md:p-6 rounded-2xl md:rounded-3xl">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase">总游戏数</span>
+                    <Gamepad2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-purple-500" />
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-xl md:text-3xl font-black text-slate-800 dark:text-white">{gameStats.totalGamesPlayed}</span>
+                    <span className="text-[8px] md:text-xs text-slate-400 font-bold uppercase">Games</span>
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-4 md:p-6 rounded-2xl md:rounded-3xl">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase">最高分数</span>
+                    <Trophy className="w-3.5 h-3.5 md:w-4 md:h-4 text-amber-500" />
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-xl md:text-3xl font-black text-slate-800 dark:text-white">{gameStats.bestScore}</span>
+                    <span className="text-[8px] md:text-xs text-slate-400 font-bold uppercase">Points</span>
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-4 md:p-6 rounded-2xl md:rounded-3xl">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase">完成数</span>
+                    <Award className="w-3.5 h-3.5 md:w-4 md:h-4 text-emerald-500" />
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-xl md:text-3xl font-black text-slate-800 dark:text-white">{gameStats.gamesCompleted}</span>
+                    <span className="text-[8px] md:text-xs text-slate-400 font-bold uppercase">Completed</span>
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-4 md:p-6 rounded-2xl md:rounded-3xl">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase">完美通关</span>
+                    <Flame className="w-3.5 h-3.5 md:w-4 md:h-4 text-red-500" />
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-xl md:text-3xl font-black text-slate-800 dark:text-white">{gameStats.perfectGames}</span>
+                    <span className="text-[8px] md:text-xs text-slate-400 font-bold uppercase">Perfect</span>
                   </div>
                 </div>
               </div>

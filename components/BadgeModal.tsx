@@ -10,7 +10,7 @@ interface BadgeModalProps {
     onAckNewBadge: () => void;
 }
 
-const BadgeModal: React.FC<BadgeModalProps> = ({ unlockedBadges, newBadge, onClose, onAckNewBadge }) => {
+export const BadgeModal: React.FC<BadgeModalProps> = ({ unlockedBadges, newBadge, onClose, onAckNewBadge }) => {
     const isNewBadgeView = !!newBadge;
     const unlockedIds = new Set(unlockedBadges.map(b => b.id));
 

@@ -1,4 +1,4 @@
-import { Phrase, TrainingSlot, TrainingOrder, TrainingSettings, SessionStats, Badge, TrainingRecord, UserStreak, StreakReward, ParrotPhoto } from '../types';
+import { Phrase, TrainingSlot, TrainingOrder, TrainingSettings, SessionStats, Badge, TrainingRecord, UserStreak, StreakReward, ParrotPhoto, Game, GameSession, GameStats } from '../types';
 
 const STORAGE_KEYS = {
   PHRASES: 'parrot_phrases_v3',
@@ -10,7 +10,10 @@ const STORAGE_KEYS = {
   TRAINING_RECORDS: 'parrot_training_records',
   USER_STREAK: 'parrot_user_streak',
   STREAK_REWARDS: 'parrot_streak_rewards',
-  PHOTOS: 'parrot_photos'
+  PHOTOS: 'parrot_photos',
+  GAMES: 'parrot_games_v1',
+  GAME_SESSIONS: 'parrot_game_sessions_v1',
+  GAME_STATS: 'parrot_game_stats_v1'
 } as const;
 
 /**
@@ -305,5 +308,124 @@ export function savePhotos(photos: ParrotPhoto[]): void {
     localStorage.setItem(STORAGE_KEYS.PHOTOS, JSON.stringify(photos));
   } catch (error) {
     console.error('Failed to save photos:', error);
+  }
+}
+
+/**
+ * 加载游戏列表
+ */
+export function loadGames(): Game[] {
+  const data = localStorage.getItem(STORAGE_KEYS.GAMES);
+  const defaultGames: Game[] = [
+    {
+      id: 'imitation_1',
+      name: '鹦鹉模仿秀',
+      description: '鹦鹉说一个短语，你需要模仿它的发音和效果',
+      type: 'imitation',
+      difficulty: 'easy',
+      icon: '🦜',
+      color: '#10b981',
+      highScore: 0,
+      playCount: 0,
+      lastPlayed: null,
+      unlockedAt: Date.now()
+    },
+    {
+      id: 'memory_1',
+      name: '记忆挑战',
+      description: '记住鹦鹉说的短语序列，然后重复出来',
+      type: 'memory',
+      difficulty: 'medium',
+      icon: '🧠',
+      color: '#8b5cf6',
+      highScore: 0,
+      playCount: 0,
+      lastPlayed: null,
+      unlockedAt: Date.now()
+    },
+    {
+      id: 'rhythm_1',
+      name: '节奏大师',
+      description: '按照节奏点击鹦鹉叫声，保持节奏感',
+      type: 'rhythm',
+      difficulty: 'easy',
+      icon: '🎵',
+      color: '#f59e0b',
+      highScore: 0,
+      playCount: 0,
+      lastPlayed: null,
+      unlockedAt: Date.now()
+    },
+    {
+      id: 'puzzle_1',
+      name: '鹦鹉拼图',
+      description: '拼凑鹦鹉相关的图片，解锁新成就',
+      type: 'puzzle',
+      difficulty: 'medium',
+      icon: '🧩',
+      color: '#ec4899',
+      highScore: 0,
+      playCount: 0,
+      lastPlayed: null,
+      unlockedAt: Date.now()
+    }
+  ];
+  return safeParseJSON(data, defaultGames);
+}
+
+/**
+ * 保存游戏列表
+ */
+export function saveGames(games: Game[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.GAMES, JSON.stringify(games));
+  } catch (error) {
+    console.error('Failed to save games:', error);
+  }
+}
+
+/**
+ * 加载游戏会话
+ */
+export function loadGameSessions(): GameSession[] {
+  const data = localStorage.getItem(STORAGE_KEYS.GAME_SESSIONS);
+  return safeParseJSON(data, []);
+}
+
+/**
+ * 保存游戏会话
+ */
+export function saveGameSessions(sessions: GameSession[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.GAME_SESSIONS, JSON.stringify(sessions));
+  } catch (error) {
+    console.error('Failed to save game sessions:', error);
+  }
+}
+
+/**
+ * 加载游戏统计
+ */
+export function loadGameStats(): GameStats {
+  const data = localStorage.getItem(STORAGE_KEYS.GAME_STATS);
+  const defaultStats: GameStats = {
+    totalGamesPlayed: 0,
+    totalScore: 0,
+    bestScore: 0,
+    gamesCompleted: 0,
+    perfectGames: 0,
+    lastPlayedDate: null
+  };
+  return safeParseJSON(data, defaultStats);
+}
+
+/**
+ * 保存游戏统计
+ */
+export function saveGameStats(stats: GameStats): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.GAME_STATS, JSON.stringify(stats));
+  } catch (error) {
+    console.error('Failed to save game stats:', error);
   }
 }
