@@ -5,7 +5,11 @@
       "Bash(npx tsc:*)",
       "Bash(npm run dev:*)",
       "WebSearch",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(dir:*)"
     ]
-  }
+  },
+  "outputStyle": "Coding Vibes"
 }

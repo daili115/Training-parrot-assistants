@@ -3,7 +3,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Bird, Mic, Play, Square, Settings, Clock,
   BarChart3, Dna, Trophy, X, ChevronRight,
-  History, Filter, Calendar, ExternalLink, Heart, Gamepad2
+  History, Filter, Calendar, ExternalLink, Heart, Gamepad2,
+  Accessibility, Volume2, Type, Zap, Camera, BookOpen
 } from 'lucide-react';
 import { Phrase, TrainingSlot, TrainingOrder, TrainingSettings, SessionStats, Badge, AwardNotification, ParrotPhoto } from './types';
 import { loadPhrases, loadSlots, loadSettings, loadHistory, loadBadges, savePhrases, saveSlots, saveSettings, saveHistory, saveBadges, loadPhotos, savePhotos } from './utils/storage';
@@ -25,6 +26,15 @@ import ToggleTheme from './components/ToggleTheme';
 import ParrotGallery from './components/ParrotGallery';
 import ParrotCareTips from './components/ParrotCareTips';
 import { GameLobby } from './components/GameLobby';
+import { EasyModeProvider, useEasyMode } from './context/EasyModeContext';
+import { EasyModeToggle } from './components/EasyModeToggle';
+import { BottomNavigation } from './components/BottomNavigation';
+import { BigButton } from './components/BigButton';
+import { BigCard } from './components/BigCard';
+import SimpleRecorder from './components/SimpleRecorder';
+import SimpleTrainingEngine from './components/SimpleTrainingEngine';
+import SimpleGameLobby from './components/SimpleGameLobby';
+import SimpleCareTips from './components/SimpleCareTips';
 
 const DEFAULT_SETTINGS: TrainingSettings = {
   loopInterval: 10,
@@ -35,7 +45,7 @@ const DEFAULT_SETTINGS: TrainingSettings = {
   fadeInOut: true
 };
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [phrases, setPhrases] = useState<Phrase[]>([]);
   const [slots, setSlots] = useState<TrainingSlot[]>([]);
   const [settings, setSettings] = useState<TrainingSettings>(DEFAULT_SETTINGS);
@@ -55,7 +65,14 @@ const App: React.FC = () => {
   const [userStreak, setUserStreak] = useState<any>(null);
   const [badgeNotifications, setBadgeNotifications] = useState<AwardNotification[]>([]);
 
+  // 简易模式相关状态
+  const [showSimpleRecorder, setShowSimpleRecorder] = useState(false);
+  const [showSimpleTraining, setShowSimpleTraining] = useState(false);
+  const [showSimpleGame, setShowSimpleGame] = useState(false);
+  const [showSimpleCare, setShowSimpleCare] = useState(false);
+
   const { theme, toggleTheme } = useTheme();
+  const { isEasyMode, fontSize, simplifiedUI, voiceAssist } = useEasyMode();
   const lastTriggeredRef = useRef<string | null>(null);
   const userId = 'default_user'; // 可以扩展为实际的用户ID系统
 
@@ -162,8 +179,254 @@ const App: React.FC = () => {
   const addPhoto = (photo: ParrotPhoto) => setPhotos(prev => [photo, ...prev]);
   const deletePhoto = (id: string) => setPhotos(prev => prev.filter(p => p.id !== id));
 
+  // 获取字体大小类
+  const getFontSizeClass = () => {
+    switch (fontSize) {
+      case 'extra-large':
+        return 'text-xl';
+      case 'large':
+        return 'text-lg';
+      default:
+        return '';
+    }
+  };
+
+  // 简易模式下的主界面
+  if (isEasyMode) {
+    return (
+      <div className={`min-h-screen bg-transparent pb-24 relative overflow-hidden ${getFontSizeClass()}`}>
+        {/* Tropical Background Pattern */}
+        <div className="tropical-bg" />
+
+        {/* 简易模式头部 */}
+        <header className="bird-gradient dark:from-slate-900 dark:to-slate-800 dark:text-white text-white px-4 py-6 md:px-8 md:py-8 shadow-2xl sticky top-0 z-30 rounded-b-[40px] md:rounded-b-[60px]">
+          <div className="max-w-5xl mx-auto flex flex-col items-center gap-4 relative">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-xl shadow-inner">
+                <Bird className="w-10 h-10 text-white animate-bounce" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-black text-white leading-tight">鹦鹉学舌大师</h1>
+                <p className="text-sm text-white/80">简易模式 - 适合老年用户</p>
+              </div>
+            </div>
+
+            <div className="flex gap-2 w-full justify-center">
+              <EasyModeToggle />
+              <ToggleTheme />
+            </div>
+          </div>
+        </header>
+
+        {/* 简易模式主内容 */}
+        <main className="max-w-5xl mx-auto p-4 mt-2 space-y-4">
+          {/* 大按钮区域 */}
+          <div className="grid grid-cols-2 gap-4">
+            <BigButton
+              icon={<Mic className="w-6 h-6" />}
+              label="录音"
+              onClick={() => setShowSimpleRecorder(true)}
+              color="from-emerald-500 to-cyan-500"
+              size="extra-large"
+              description="录制新词汇"
+            />
+            <BigButton
+              icon={<Play className="w-6 h-6" />}
+              label={isTraining ? '停止' : '训练'}
+              onClick={() => {
+                if (phrases.length > 0) {
+                  setShowSimpleTraining(true);
+                }
+              }}
+              color={isTraining ? 'from-red-500 to-pink-500' : 'from-purple-500 to-pink-500'}
+              size="extra-large"
+              description="开始教学"
+              disabled={phrases.length === 0}
+            />
+            <BigButton
+              icon={<Heart className="w-6 h-6" />}
+              label="饲养"
+              onClick={() => setShowSimpleCare(true)}
+              color="from-rose-500 to-orange-500"
+              size="extra-large"
+              description="饲养技巧"
+            />
+            <BigButton
+              icon={<Trophy className="w-6 h-6" />}
+              label="勋章"
+              onClick={() => setShowBadges(true)}
+              color="from-amber-500 to-yellow-500"
+              size="extra-large"
+              description={`已获 ${badges.length} 枚`}
+            />
+            <BigButton
+              icon={<Camera className="w-6 h-6" />}
+              label="照片"
+              onClick={() => setShowSimpleGame(true)}
+              color="from-blue-500 to-indigo-500"
+              size="extra-large"
+              description="游戏/照片"
+            />
+            <BigButton
+              icon={<BookOpen className="w-6 h-6" />}
+              label="技巧"
+              onClick={() => setShowSimpleCare(true)}
+              color="from-teal-500 to-green-500"
+              size="extra-large"
+              description="详细指南"
+            />
+          </div>
+
+          {/* 统计卡片 */}
+          <div className="grid grid-cols-2 gap-4">
+            <BigCard
+              title="连续训练"
+              icon={<Trophy className="w-6 h-6 text-amber-500" />}
+              color="from-amber-500 to-orange-500"
+            >
+              {userStreak ? (
+                <div className="text-center">
+                  <div className="text-4xl font-black text-amber-600 dark:text-amber-400">
+                    {userStreak.currentStreak} 天
+                  </div>
+                  <div className="text-sm text-slate-500 dark:text-slate-400">
+                    最长 {userStreak.longestStreak} 天
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center text-slate-500">暂无记录</div>
+              )}
+            </BigCard>
+
+            <BigCard
+              title="教学统计"
+              icon={<Play className="w-6 h-6 text-emerald-500" />}
+              color="from-emerald-500 to-cyan-500"
+            >
+              <div className="text-center">
+                <div className="text-4xl font-black text-emerald-600 dark:text-emerald-400">
+                  {phrases.length}
+                </div>
+                <div className="text-sm text-slate-500 dark:text-slate-400">
+                  个词汇
+                </div>
+              </div>
+            </BigCard>
+          </div>
+
+          {/* 词汇列表（简化版） */}
+          <BigCard
+            title="教学库"
+            icon={<BookOpen className="w-6 h-6 text-blue-500" />}
+            color="from-blue-500 to-indigo-500"
+          >
+            {phrases.length > 0 ? (
+              <div className="space-y-2">
+                {phrases.slice(0, 5).map((phrase) => (
+                  <div
+                    key={phrase.id}
+                    className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl"
+                  >
+                    <span className="font-bold">{phrase.label}</span>
+                    <button
+                      onClick={() => {
+                        const audio = new Audio(phrase.audioUrl);
+                        audio.play();
+                      }}
+                      className="px-3 py-1 bg-emerald-500 text-white rounded-lg text-sm font-black"
+                    >
+                      播放
+                    </button>
+                  </div>
+                ))}
+                {phrases.length > 5 && (
+                  <div className="text-center text-sm text-slate-500">
+                    还有 {phrases.length - 5} 个词汇...
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center text-slate-500 py-4">
+                暂无词汇，请点击"录音"按钮添加
+              </div>
+            )}
+          </BigCard>
+        </main>
+
+        {/* 底部导航栏 */}
+        <BottomNavigation
+          onRecordClick={() => setShowSimpleRecorder(true)}
+          onTrainClick={() => {
+            if (phrases.length > 0) {
+              setShowSimpleTraining(true);
+            }
+          }}
+          onCareClick={() => setShowSimpleCare(true)}
+          onBadgesClick={() => setShowBadges(true)}
+          onGalleryClick={() => setShowSimpleGame(true)}
+          onSettingsClick={() => setShowSimpleGame(true)}
+          onTipsClick={() => setShowSimpleCare(true)}
+          isTraining={isTraining}
+          hasPhrases={phrases.length > 0}
+        />
+
+        {/* 简易模式模态框 */}
+        {showSimpleRecorder && (
+          <div className="fixed inset-0 z-[100] bg-white dark:bg-slate-900 overflow-y-auto">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-black text-slate-800 dark:text-white">录制新词汇</h2>
+                <button
+                  onClick={() => setShowSimpleRecorder(false)}
+                  className="px-4 py-2 bg-slate-200 dark:bg-slate-700 rounded-xl font-black"
+                >
+                  关闭
+                </button>
+              </div>
+              <SimpleRecorder onSave={addPhrase} />
+            </div>
+          </div>
+        )}
+
+        {showSimpleTraining && (
+          <SimpleTrainingEngine
+            phrases={phrases}
+            settings={settings}
+            onFinish={handleTrainingFinish}
+            onClose={() => setShowSimpleTraining(false)}
+          />
+        )}
+
+        {showSimpleGame && (
+          <SimpleGameLobby
+            phrases={phrases}
+            onClose={() => setShowSimpleGame(false)}
+          />
+        )}
+
+        {showSimpleCare && (
+          <SimpleCareTips onClose={() => setShowSimpleCare(false)} />
+        )}
+
+        {/* 勋章模态框 */}
+        {(showBadges || newBadge) && (
+          <BadgeModal
+            unlockedBadges={badges}
+            newBadge={newBadge}
+            onClose={() => setShowBadges(false)}
+            onAckNewBadge={() => setNewBadge(null)}
+          />
+        )}
+
+        {/* 全局通知容器 */}
+        <NotificationContainer position="top-right" />
+      </div>
+    );
+  }
+
+  // 标准模式界面
   return (
-    <div className="min-h-screen bg-transparent pb-12 relative overflow-hidden">
+    <div className={`min-h-screen bg-transparent pb-12 relative overflow-hidden ${getFontSizeClass()}`}>
       {/* Tropical Background Pattern */}
       <div className="tropical-bg" />
 
@@ -208,6 +471,7 @@ const App: React.FC = () => {
             <div className="shrink-0 flex items-center">
               <ToggleTheme />
             </div>
+            <EasyModeToggle />
             <button
               onClick={() => setShowCareTips(true)}
               className="group relative overflow-hidden flex items-center justify-center gap-3 px-4 py-4 rounded-2xl md:rounded-[32px] font-black transition-all shadow-lg active:scale-95 bg-gradient-to-r from-emerald-400 to-cyan-500 text-white hover:shadow-emerald-500/25"
@@ -571,6 +835,14 @@ const App: React.FC = () => {
       {/* 全局通知容器 */}
       <NotificationContainer position="top-right" />
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <EasyModeProvider>
+      <AppContent />
+    </EasyModeProvider>
   );
 };
 
