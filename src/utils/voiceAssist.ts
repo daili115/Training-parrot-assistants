@@ -110,6 +110,13 @@ export const speakFeedback = (action: string, success: boolean = true) => {
     'record_stop': '录音结束',
     'unlock_badge': '恭喜你，获得新勋章',
     'complete_day': '今日训练完成',
+    'easy_mode_on': '简易模式已开启',
+    'easy_mode_off': '标准模式已开启',
+    'voice_assist_on': '语音辅助已开启',
+    'voice_assist_off': '语音辅助已关闭',
+    'simplified_ui_on': '简化界面已开启',
+    'simplified_ui_off': '简化界面已关闭',
+    'save_photo': '照片已保存',
   };
 
   const message = messages[action] || (success ? '操作成功' : '操作失败');

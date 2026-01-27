@@ -36,8 +36,10 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
   // 获取当前短语
   const currentPhrase = phrases[currentPhraseIndex];
 
-  // 监听音量变化
+  // 监听音量和噪音变化
   useEffect(() => {
+    let cleanup: (() => void) | undefined;
+
     const setupAudioMonitoring = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -49,7 +51,8 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
         analyser.fftSize = 256;
         const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
-        const updateVolume = () => {
+        const checkVolume = () => {
+          if (!analyserRef.current) return;
           analyser.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
           const normalized = average / 255;
@@ -63,29 +66,39 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
           }
 
           if (isPlaying) {
-            requestAnimationFrame(updateVolume);
+            requestAnimationFrame(checkVolume);
+          } else {
+            setVolume(0);
           }
         };
 
-        updateVolume();
-
         audioContextRef.current = audioContext;
         analyserRef.current = analyser;
+        checkVolume();
 
-        // 停止流，只用于音量检测
-        stream.getTracks().forEach(track => track.stop());
+        return () => {
+          stream.getTracks().forEach(track => track.stop());
+          if (audioContext.state !== 'closed') {
+            audioContext.close().catch(() => { });
+          }
+        };
       } catch (err) {
         console.error('无法监控音量:', err);
       }
     };
 
     if (isPlaying) {
-      setupAudioMonitoring();
+      setupAudioMonitoring().then(c => {
+        if (c) cleanup = c;
+      });
     }
 
     return () => {
+      if (cleanup) cleanup();
       if (audioContextRef.current) {
-        audioContextRef.current.close();
+        audioContextRef.current.close().catch(() => { });
+        audioContextRef.current = null;
+        analyserRef.current = null;
       }
     };
   }, [isPlaying]);
@@ -94,7 +107,9 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
   const playCurrentPhrase = () => {
     if (!currentPhrase) return;
 
-    speakFeedback('play_audio');
+    if (voiceAssist) {
+      speak(`正在播放：${currentPhrase.label}`);
+    }
 
     const audio = new Audio(currentPhrase.audioUrl);
     audioRef.current = audio;
@@ -118,14 +133,12 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
     };
 
     audio.playbackRate = effectMap[currentPhrase.effect] || 1;
+    // @ts-ignore
     audio.preservesPitch = false;
     audio.volume = settings.volume;
 
     audio.onplay = () => {
       setIsPlaying(true);
-      if (voiceAssist) {
-        speak(`正在播放：${currentPhrase.label}`);
-      }
     };
 
     audio.onended = () => {
@@ -133,16 +146,15 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
       setPlayCount(prev => prev + 1);
 
       // 自动播放下一个
-      if (isPlaying) {
-        setTimeout(() => {
+      intervalRef.current = setTimeout(() => {
+        if (isPlaying) {
           if (currentPhraseIndex < phrases.length - 1) {
             setCurrentPhraseIndex(prev => prev + 1);
           } else {
-            // 循环回到第一个
             setCurrentPhraseIndex(0);
           }
-        }, settings.loopInterval * 1000);
-      }
+        }
+      }, settings.loopInterval * 1000);
     };
 
     audio.onerror = () => {
@@ -153,6 +165,13 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
     audio.play();
   };
 
+  // 监听当前索引变化并播放
+  useEffect(() => {
+    if (startTime && !isPlaying) {
+      playCurrentPhrase();
+    }
+  }, [currentPhraseIndex, startTime]);
+
   // 停止播放
   const stopPlaying = () => {
     if (audioRef.current) {
@@ -161,9 +180,8 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
     }
     setIsPlaying(false);
 
-    // 清除所有定时器
     if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+      clearTimeout(intervalRef.current);
       intervalRef.current = null;
     }
   };
@@ -190,9 +208,6 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
     setTimeout(() => {
       finishTraining();
     }, settings.sessionDuration * 60 * 1000);
-
-    // 开始播放
-    playCurrentPhrase();
   };
 
   // 结束训练
@@ -224,12 +239,14 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
     }
     setIsPlaying(false);
 
+    if (intervalRef.current) {
+      clearTimeout(intervalRef.current);
+    }
+
     if (currentPhraseIndex < phrases.length - 1) {
       setCurrentPhraseIndex(prev => prev + 1);
-      setTimeout(() => playCurrentPhrase(), 500);
     } else {
       setCurrentPhraseIndex(0);
-      setTimeout(() => playCurrentPhrase(), 500);
     }
   };
 
@@ -243,22 +260,18 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
   // 清理资源
   useEffect(() => {
     return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (intervalRef.current) clearTimeout(intervalRef.current);
       if (audioRef.current) {
         audioRef.current.pause();
+        audioRef.current = null;
       }
       if (audioContextRef.current) {
-        audioContextRef.current.close();
+        audioContextRef.current.close().catch(() => { });
       }
     };
   }, []);
 
-  // 如果没有短语，显示提示
   if (phrases.length === 0) {
     return (
       <div className="fixed inset-0 z-[100] bg-white dark:bg-slate-900 flex items-center justify-center p-6">
@@ -268,12 +281,7 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
           </div>
           <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2">没有教学词汇</h2>
           <p className="text-slate-500 mb-6">请先录制一些词汇再开始训练</p>
-          <button
-            onClick={onClose}
-            className="px-8 py-4 bg-emerald-500 text-white rounded-2xl font-black hover:bg-emerald-600 transition-all"
-          >
-            返回
-          </button>
+          <button onClick={onClose} className="px-8 py-4 bg-emerald-500 text-white rounded-2xl font-black hover:bg-emerald-600 transition-all">返回</button>
         </div>
       </div>
     );
@@ -281,115 +289,68 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
 
   return (
     <div className="fixed inset-0 z-[100] bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-slate-900 dark:to-slate-800 flex flex-col">
-      {/* 顶部栏 */}
       <div className="flex items-center justify-between p-6 bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl">
-        <button
-          onClick={onClose}
-          className="px-6 py-3 bg-slate-200 dark:bg-slate-700 rounded-2xl font-black hover:bg-slate-300 dark:hover:bg-slate-600 transition-all"
-        >
-          退出
-        </button>
+        <button onClick={onClose} className="px-6 py-3 bg-slate-200 dark:bg-slate-700 rounded-2xl font-black hover:bg-slate-300 transition-all">退出</button>
         <div className="text-center">
-          <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400">
-            {formatTime(elapsedTime)}
-          </div>
-          <div className="text-xs text-slate-500 dark:text-slate-400">
-            目标：{settings.sessionDuration}分钟
-          </div>
+          <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400">{formatTime(elapsedTime)}</div>
+          <div className="text-xs text-slate-500">目标：{settings.sessionDuration}分钟</div>
         </div>
         <div className="px-6 py-3 bg-amber-100 dark:bg-amber-900/30 rounded-2xl">
-          <span className="text-amber-700 dark:text-amber-300 font-black">
-            第 {currentPhraseIndex + 1} / {phrases.length} 个
-          </span>
+          <span className="text-amber-700 dark:text-amber-300 font-black">第 {currentPhraseIndex + 1} / {phrases.length} 个</span>
         </div>
       </div>
 
-      {/* 主内容区 */}
       <div className="flex-1 flex flex-col items-center justify-center p-6 overflow-y-auto">
-        {/* 噪音警告 */}
         {showNoiseWarning && (
-          <div className="mb-6 px-6 py-3 bg-red-500 text-white rounded-2xl font-black animate-pulse">
-            ⚠️ 环境噪音较大，建议在安静环境中训练
-          </div>
+          <div className="mb-6 px-6 py-3 bg-red-500 text-white rounded-2xl font-black animate-pulse">⚠️ 环境噪音较大，建议在安静环境中训练</div>
         )}
 
-        {/* 当前短语显示 */}
         <div className="text-center mb-8">
-          <div className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-2">
-            正在播放
-          </div>
-          <div className={`font-black ${isEasyMode ? 'text-5xl' : 'text-4xl'} text-slate-800 dark:text-white mb-2`}>
-            {currentPhrase?.label || '...'}
-          </div>
-          <div className="text-sm text-slate-500 dark:text-slate-400">
-            声音效果：{currentPhrase?.effect || '正常'}
-          </div>
+          <div className="text-sm font-bold text-slate-500 mb-2">正在播放</div>
+          <div className={`font-black ${isEasyMode ? 'text-5xl' : 'text-4xl'} text-slate-800 dark:text-white mb-2`}>{currentPhrase?.label || '...'}</div>
+          <div className="text-sm text-slate-500">声音效果：{currentPhrase?.effect || '正常'}</div>
         </div>
 
-        {/* 音量指示器 */}
         <div className="w-full max-w-md mb-8">
           <div className="flex items-center gap-3 mb-2">
             <Volume2 className="w-5 h-5 text-slate-500" />
             <span className="text-sm font-bold text-slate-600 dark:text-slate-300">环境音量</span>
           </div>
           <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-100"
-              style={{ width: `${volume * 100}%` }}
-            />
+            <div className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-100" style={{ width: `${volume * 100}%` }} />
           </div>
         </div>
 
-        {/* 播放统计 */}
         <div className="grid grid-cols-2 gap-4 mb-8">
           <div className="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-4 text-center">
-            <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400">
-              {playCount}
-            </div>
-            <div className="text-xs text-slate-500 dark:text-slate-400">播放次数</div>
+            <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400">{playCount}</div>
+            <div className="text-xs text-slate-500">播放次数</div>
           </div>
           <div className="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-4 text-center">
-            <div className="text-3xl font-black text-blue-600 dark:text-blue-400">
-              {phrases.length}
-            </div>
-            <div className="text-xs text-slate-500 dark:text-slate-400">总词汇数</div>
+            <div className="text-3xl font-black text-blue-600 dark:text-blue-400">{phrases.length}</div>
+            <div className="text-xs text-slate-500">总词汇数</div>
           </div>
         </div>
 
-        {/* 控制按钮 */}
         <div className="flex flex-wrap gap-4 justify-center">
           {isPlaying ? (
             <>
-              <button
-                onClick={stopPlaying}
-                className="flex flex-col items-center gap-2 px-8 py-6 bg-red-500 text-white rounded-3xl font-black hover:bg-red-600 transition-all active:scale-95"
-              >
+              <button onClick={stopPlaying} className="flex flex-col items-center gap-2 px-8 py-6 bg-red-500 text-white rounded-3xl font-black hover:bg-red-600 transition-all active:scale-95">
                 <Square className="w-8 h-8 fill-current" />
                 <span className="text-lg">暂停</span>
               </button>
-
-              <button
-                onClick={skipPhrase}
-                className="flex flex-col items-center gap-2 px-8 py-6 bg-slate-500 text-white rounded-3xl font-black hover:bg-slate-600 transition-all active:scale-95"
-              >
+              <button onClick={skipPhrase} className="flex flex-col items-center gap-2 px-8 py-6 bg-slate-500 text-white rounded-3xl font-black hover:bg-slate-600 transition-all active:scale-95">
                 <SkipForward className="w-8 h-8" />
                 <span className="text-lg">跳过</span>
               </button>
             </>
           ) : (
             <>
-              <button
-                onClick={startTraining}
-                className="flex flex-col items-center gap-2 px-10 py-8 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-3xl font-black hover:shadow-2xl transition-all active:scale-95"
-              >
+              <button onClick={startTraining} className="flex flex-col items-center gap-2 px-10 py-8 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-3xl font-black hover:shadow-2xl transition-all active:scale-95">
                 <Play className="w-10 h-10 fill-current" />
                 <span className="text-xl">开始训练</span>
               </button>
-
-              <button
-                onClick={finishTraining}
-                className="flex flex-col items-center gap-2 px-8 py-6 bg-amber-500 text-white rounded-3xl font-black hover:bg-amber-600 transition-all active:scale-95"
-              >
+              <button onClick={finishTraining} className="flex flex-col items-center gap-2 px-8 py-6 bg-amber-500 text-white rounded-3xl font-black hover:bg-amber-600 transition-all active:scale-95">
                 <Trophy className="w-8 h-8" />
                 <span className="text-lg">完成</span>
               </button>
@@ -397,12 +358,8 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
           )}
         </div>
       </div>
-
-      {/* 底部提示 */}
       <div className="p-6 bg-white/30 dark:bg-slate-800/30 backdrop-blur-xl">
-        <p className="text-center text-sm text-slate-600 dark:text-slate-300 font-bold">
-          💡 提示：训练过程中请保持环境安静，鹦鹉会学得更快
-        </p>
+        <p className="text-center text-sm text-slate-600 dark:text-slate-300 font-bold">💡 提示：训练过程中请保持环境安静，鹦鹉会学得更快</p>
       </div>
     </div>
   );

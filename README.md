@@ -37,6 +37,13 @@
 - 实时噪音监测以优化训练环境
 
 <div align="center">
+  <p><b>🎬 产品演示视频</b></p>
+  <video src="media/demo.mp4" width="800" controls></video>
+  <br/><br/>
+  <p><b>🛠️ 部署演示视频 (Windows Style)</b></p>
+  <video src="media/deployment.mp4" width="800" controls></video>
+  <br/><br/>
+  <p><b>📸 应用界面截图</b></p>
   <img src="Screenshot 2025-12-28 115605.png" alt="鹦鹉学舌助手界面" width="800"/>
 </div>
 
