@@ -4,7 +4,8 @@ import {
   Mic, Square, X, User, Bird,
   AudioLines, Zap, Rabbit, Baby, Ghost,
   Radio, Atom, Skull, Tag,
-  Cat, Mountain, Flower2, Glasses
+  Cat, Mountain, Flower2, Glasses,
+  Music2, Sparkles, Theater, Ear, Rabbit as FastIcon, Timer
 } from 'lucide-react';
 import { Phrase, VoiceEffect } from '../types';
 import { EFFECT_CONFIG, SUGGESTED_TAGS, applyAudioEffect, safeRevokeURL, getAudioDuration } from '../utils/audio';
@@ -28,7 +29,14 @@ const EFFECT_ICONS: Record<string, any> = {
   squirrel: Cat,
   giant: Mountain,
   female: Flower2,
-  grandpa: Glasses
+  grandpa: Glasses,
+  echo: Music2,
+  cartoon: Sparkles,
+  narrator: Theater,
+  opera: Theater,
+  whisper: Ear,
+  fast: FastIcon,
+  slow: Timer
 };
 
 
