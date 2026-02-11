@@ -27,6 +27,7 @@ const SimpleRecorder: React.FC<SimpleRecorderProps> = ({ onSave }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<number | null>(null);
+  const isRecordingRef = useRef(false);
 
   const presetTags = ['日常用语', '指令', '名字', '问候', '其他'];
 
@@ -53,11 +54,12 @@ const SimpleRecorder: React.FC<SimpleRecorderProps> = ({ onSave }) => {
         const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
         setVolume(average / 255);
 
-        if (isRecording) {
-          requestAnimationFrame(updateVolume);
-        } else {
+        if (!isRecordingRef.current) {
           setVolume(0);
+          return;
         }
+
+        requestAnimationFrame(updateVolume);
       };
 
       audioContextRef.current = audioContext;
@@ -87,6 +89,7 @@ const SimpleRecorder: React.FC<SimpleRecorderProps> = ({ onSave }) => {
       const chunks: BlobPart[] = [];
       mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
       mediaRecorder.onstop = () => {
+        isRecordingRef.current = false;
         const blob = new Blob(chunks, { type: 'audio/webm' });
         setAudioBlob(blob);
         const url = URL.createObjectURL(blob);
@@ -99,6 +102,7 @@ const SimpleRecorder: React.FC<SimpleRecorderProps> = ({ onSave }) => {
 
       mediaRecorder.start();
       mediaRecorderRef.current = mediaRecorder;
+      isRecordingRef.current = true;
       setIsRecording(true);
       setRemainingSeconds(recordLimit);
       startVolumeMonitoring(stream);
@@ -124,6 +128,7 @@ const SimpleRecorder: React.FC<SimpleRecorderProps> = ({ onSave }) => {
       mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
     }
 
+    isRecordingRef.current = false;
     setIsRecording(false);
     clearTimer();
 
@@ -242,6 +247,7 @@ const SimpleRecorder: React.FC<SimpleRecorderProps> = ({ onSave }) => {
 
   useEffect(() => {
     return () => {
+      isRecordingRef.current = false;
       if (audioUrl) URL.revokeObjectURL(audioUrl);
       if (audioRef.current) audioRef.current.pause();
       if (audioContextRef.current) audioContextRef.current.close().catch(() => { });
