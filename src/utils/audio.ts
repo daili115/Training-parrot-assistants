@@ -19,7 +19,14 @@ export const EFFECT_CONFIG: Record<string, {
   squirrel: { label: '松鼠', rate: 1.4, pitch: false, color: 'text-orange-400' },
   giant: { label: '巨人', rate: 0.6, pitch: false, color: 'text-slate-800' },
   female: { label: '女声', rate: 1.1, pitch: false, color: 'text-rose-400' },
-  grandpa: { label: '爷爷', rate: 0.9, pitch: false, color: 'text-stone-500' }
+  grandpa: { label: '爷爷', rate: 0.9, pitch: false, color: 'text-stone-500' },
+  echo: { label: '回声', rate: 0.95, pitch: true, color: 'text-sky-500' },
+  cartoon: { label: '卡通', rate: 1.35, pitch: false, color: 'text-fuchsia-500' },
+  narrator: { label: '旁白', rate: 0.92, pitch: true, color: 'text-indigo-600' },
+  opera: { label: '戏曲', rate: 1.18, pitch: false, color: 'text-red-500' },
+  whisper: { label: '耳语', rate: 0.88, pitch: true, color: 'text-zinc-500' },
+  fast: { label: '快语', rate: 1.6, pitch: false, color: 'text-lime-600' },
+  slow: { label: '慢语', rate: 0.65, pitch: true, color: 'text-cyan-700' }
 };
 
 export const EFFECT_KEYS = Object.keys(EFFECT_CONFIG) as VoiceEffect[];

@@ -1,10 +1,23 @@
 import React from 'react';
 import { useEasyMode } from '../context/EasyModeContext';
-import { speak, speakFeedback } from '../utils/voiceAssist';
-import { Accessibility, Volume2, Type, Zap } from 'lucide-react';
+import { speak, speakFeedback, speakInterfaceState } from '../utils/voiceAssist';
+import { Accessibility, Volume2, Type, Zap, Contrast, Waves } from 'lucide-react';
 
 export const EasyModeToggle: React.FC = () => {
-  const { isEasyMode, toggleEasyMode, fontSize, setFontSize, voiceAssist, setVoiceAssist, simplifiedUI, setSimplifiedUI } = useEasyMode();
+  const {
+    isEasyMode,
+    toggleEasyMode,
+    fontSize,
+    setFontSize,
+    voiceAssist,
+    setVoiceAssist,
+    simplifiedUI,
+    setSimplifiedUI,
+    highContrast,
+    setHighContrast,
+    reduceMotion,
+    setReduceMotion
+  } = useEasyMode();
 
   const handleToggleEasyMode = () => {
     toggleEasyMode();
@@ -43,6 +56,18 @@ export const EasyModeToggle: React.FC = () => {
     } else {
       speak('简化界面已关闭');
     }
+  };
+
+  const handleHighContrastToggle = () => {
+    const newState = !highContrast;
+    setHighContrast(newState);
+    speak(newState ? '高对比度模式已开启，文字会更清晰' : '高对比度模式已关闭');
+  };
+
+  const handleReduceMotionToggle = () => {
+    const newState = !reduceMotion;
+    setReduceMotion(newState);
+    speak(newState ? '动态效果已减少，画面会更稳定' : '动态效果已恢复');
   };
 
   return (
@@ -145,6 +170,53 @@ export const EasyModeToggle: React.FC = () => {
               />
             </button>
           </div>
+
+          {/* 高对比度 */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Contrast className="w-4 h-4 text-sky-500" />
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">高对比度</span>
+            </div>
+            <button
+              onClick={handleHighContrastToggle}
+              className={`w-12 h-6 rounded-full relative transition-all ${
+                highContrast ? 'bg-sky-500' : 'bg-slate-300'
+              }`}
+            >
+              <div
+                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-all ${
+                  highContrast ? 'left-6.5' : 'left-0.5'
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* 减少动态 */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Waves className="w-4 h-4 text-teal-500" />
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">减少动态</span>
+            </div>
+            <button
+              onClick={handleReduceMotionToggle}
+              className={`w-12 h-6 rounded-full relative transition-all ${
+                reduceMotion ? 'bg-teal-500' : 'bg-slate-300'
+              }`}
+            >
+              <div
+                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-all ${
+                  reduceMotion ? 'left-6.5' : 'left-0.5'
+                }`}
+              />
+            </button>
+          </div>
+
+          <button
+            onClick={() => speakInterfaceState({ mode: isEasyMode ? '简易模式' : '标准模式' })}
+            className="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-black hover:bg-slate-200 dark:hover:bg-slate-600 transition-all"
+          >
+            播报当前状态
+          </button>
 
           {/* 提示信息 */}
           <div className="pt-2 border-t border-slate-200 dark:border-slate-700">

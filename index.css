@@ -464,3 +464,34 @@ button:active,
 .btn-hover-glow:hover {
   box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
 }
+
+/* 适老化：高对比和减少动态 */
+.senior-high-contrast {
+  --text-primary: #000000;
+  --text-secondary: #111827;
+  --background: #ffffff;
+  --surface: #ffffff;
+  --border: #000000;
+  --accent: #0f766e;
+}
+
+.senior-high-contrast.dark {
+  --text-primary: #ffffff;
+  --text-secondary: #e5e7eb;
+  --background: #000000;
+  --surface: #000000;
+  --border: #ffffff;
+  --accent: #22d3ee;
+}
+
+.senior-high-contrast * {
+  text-shadow: none !important;
+}
+
+.senior-reduce-motion *,
+.senior-reduce-motion *::before,
+.senior-reduce-motion *::after {
+  animation: none !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}

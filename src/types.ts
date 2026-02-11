@@ -13,7 +13,14 @@ export type VoiceEffect =
   | 'squirrel' // 松鼠 (急促)
   | 'giant'    // 巨人 (极其缓慢深沉)
   | 'female'   // 女声 (柔和变调)
-  | 'grandpa';  // 爷爷 (苍老)
+  | 'grandpa'  // 爷爷 (苍老)
+  | 'echo'     // 回声
+  | 'cartoon'  // 卡通
+  | 'narrator' // 旁白
+  | 'opera'    // 戏曲
+  | 'whisper'  // 耳语
+  | 'fast'     // 快语
+  | 'slow';    // 慢语
 
 export interface Badge {
   id: string;

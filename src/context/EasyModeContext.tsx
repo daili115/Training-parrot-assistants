@@ -9,6 +9,10 @@ interface EasyModeContextType {
   setVoiceAssist: (enabled: boolean) => void;
   simplifiedUI: boolean;
   setSimplifiedUI: (enabled: boolean) => void;
+  highContrast: boolean;
+  setHighContrast: (enabled: boolean) => void;
+  reduceMotion: boolean;
+  setReduceMotion: (enabled: boolean) => void;
 }
 
 const EasyModeContext = createContext<EasyModeContextType | undefined>(undefined);
@@ -34,6 +38,16 @@ export const EasyModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return saved === 'true';
   });
 
+  const [highContrast, setHighContrast] = useState(() => {
+    const saved = localStorage.getItem('parrot_high_contrast');
+    return saved === 'true';
+  });
+
+  const [reduceMotion, setReduceMotion] = useState(() => {
+    const saved = localStorage.getItem('parrot_reduce_motion');
+    return saved === 'true';
+  });
+
   useEffect(() => {
     localStorage.setItem('parrot_easy_mode', isEasyMode.toString());
   }, [isEasyMode]);
@@ -50,6 +64,16 @@ export const EasyModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem('parrot_simplified_ui', simplifiedUI.toString());
   }, [simplifiedUI]);
 
+  useEffect(() => {
+    localStorage.setItem('parrot_high_contrast', highContrast.toString());
+    document.documentElement.classList.toggle('senior-high-contrast', highContrast);
+  }, [highContrast]);
+
+  useEffect(() => {
+    localStorage.setItem('parrot_reduce_motion', reduceMotion.toString());
+    document.documentElement.classList.toggle('senior-reduce-motion', reduceMotion);
+  }, [reduceMotion]);
+
   const toggleEasyMode = () => {
     setIsEasyMode(prev => !prev);
   };
@@ -65,6 +89,10 @@ export const EasyModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setVoiceAssist,
         simplifiedUI,
         setSimplifiedUI,
+        highContrast,
+        setHighContrast,
+        reduceMotion,
+        setReduceMotion,
       }}
     >
       {children}
