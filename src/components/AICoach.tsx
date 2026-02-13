@@ -1,45 +1,43 @@
-
 import React, { useState } from 'react';
-import { GoogleGenAI } from "@google/genai";
 import { Phrase } from '../types';
-import { BrainCircuit, Loader2, Sparkles, RotateCcw as RefreshIcon } from 'lucide-react';
+import { Sparkles, RotateCcw as RefreshIcon } from 'lucide-react';
 
 interface AICoachProps {
   phrases: Phrase[];
 }
 
+const GENERAL_ADVICE = [
+  '每次训练 5-10 分钟即可，短而频繁比长时间训练更有效。',
+  '用固定口令开始训练，例如“开始学说话”，帮助鹦鹉建立条件反射。',
+  '只在鹦鹉状态放松时训练，避免在惊吓或躁动时强行引导。',
+  '说出目标词后立刻奖励，奖励越及时，学习速度越快。',
+  '每天在同一时间段训练，更容易形成稳定习惯。'
+];
+
+const buildPhraseAdvice = (phrases: Phrase[]): string[] => {
+  if (phrases.length === 0) {
+    return [
+      '建议先从 2-3 个双音节词开始，比如“你好”“吃饭”“宝贝”。',
+      '先训练高频场景词：喂食前、互动前、睡前。',
+      ...GENERAL_ADVICE.slice(0, 2)
+    ];
+  }
+
+  const labels = phrases.slice(0, 4).map((phrase) => `“${phrase.label}”`).join('、');
+  return [
+    `你当前的训练词包括：${labels}。建议先主练其中 1-2 个词，避免一次过多。`,
+    '把目标词拆成清晰节奏，保持稳定语速，并重复 8-12 次为一组。',
+    '每完成一组就让鹦鹉休息 1 分钟，防止注意力下降。',
+    GENERAL_ADVICE[Math.floor(Math.random() * GENERAL_ADVICE.length)]
+  ];
+};
+
 const AICoach: React.FC<AICoachProps> = ({ phrases }) => {
-  const [loading, setLoading] = useState(false);
   const [advice, setAdvice] = useState<string | null>(null);
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
-  const getAdvice = async () => {
-    if (!apiKey) {
-      setAdvice('未检测到 Gemini API Key。请在部署平台中配置 VITE_GEMINI_API_KEY 环境变量。');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey });
-      const phraseLabels = phrases.map(p => p.label).join('、');
-      
-      const prompt = phrases.length > 0 
-        ? `我正在训练鹦鹉说话。目前我录制的短语包括：${phraseLabels}。请提供 3 条科学且实用的教学建议，关于如何更有效地教它这些特定词语，或是通用的模仿训练技巧。请用中文回答，保持简洁并具有鼓励性。`
-        : `我还没有给我的鹦鹉录制任何训练短语。请给我推荐 3 个适合初学者的经典中文词汇，并提供一个关于选择最佳训练时段的建议。`;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt,
-      });
-
-      setAdvice(response.text || "获取建议时出现问题。");
-    } catch (err) {
-      console.error(err);
-      setAdvice("请确保 API Key 已正确配置。典型建议：使用高价值零食作为奖励，并保持每次训练时间短而精！");
-    } finally {
-      setLoading(false);
-    }
+  const getAdvice = () => {
+    const nextAdvice = buildPhraseAdvice(phrases).join('\n');
+    setAdvice(nextAdvice);
   };
 
   return (
@@ -51,7 +49,7 @@ const AICoach: React.FC<AICoachProps> = ({ phrases }) => {
               <p key={i} className="mb-2">{line}</p>
             ))}
           </div>
-          <button 
+          <button
             onClick={() => setAdvice(null)}
             className="text-xs font-bold text-emerald-600 hover:text-emerald-700 mt-2 flex items-center gap-1 dark:text-emerald-400 dark:hover:text-emerald-300"
           >
@@ -62,15 +60,14 @@ const AICoach: React.FC<AICoachProps> = ({ phrases }) => {
       ) : (
         <div className="flex flex-col items-center gap-3 py-2 text-center">
           <p className="text-xs text-emerald-700/70 italic">
-            根据你录制的短语，获取个性化的训练策略。
+            根据你录制的短语，获取本地生成的训练建议。
           </p>
-          <button 
+          <button
             onClick={getAdvice}
-            disabled={loading}
             className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-2 disabled:opacity-50 dark:bg-emerald-700 dark:hover:bg-emerald-600"
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-            {loading ? '正在咨询导师...' : '生成训练策略'}
+            <Sparkles className="w-4 h-4" />
+            生成训练策略
           </button>
         </div>
       )}
