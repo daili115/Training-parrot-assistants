@@ -35,6 +35,7 @@ import SimpleRecorder from './components/SimpleRecorder';
 import SimpleTrainingEngine from './components/SimpleTrainingEngine';
 import SimpleGameLobby from './components/SimpleGameLobby';
 import SimpleCareTips from './components/SimpleCareTips';
+import ParrotCallResponder from './components/ParrotCallResponder';
 
 const DEFAULT_SETTINGS: TrainingSettings = {
   loopInterval: 10,
@@ -351,6 +352,8 @@ const AppContent: React.FC = () => {
               </div>
             )}
           </BigCard>
+
+          <ParrotCallResponder />
         </main>
 
         {/* 底部导航栏 */}
@@ -675,6 +678,8 @@ const AppContent: React.FC = () => {
             </h2>
             <Scheduler slots={slots} onAdd={(t) => setSlots([...slots, { id: crypto.randomUUID(), time: t, enabled: true }].sort((a, b) => a.time.localeCompare(b.time)))} onRemove={(id) => setSlots(slots.filter(s => s.id !== id))} onToggle={(id) => setSlots(slots.map(s => s.id === id ? { ...s, enabled: !s.enabled } : s))} />
           </section>
+
+          <ParrotCallResponder />
         </div>
       </main>
 
