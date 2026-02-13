@@ -120,7 +120,7 @@ npm install
 3. 配置环境变量：
 在 `.env.local` 文件中设置您的 Google Gemini API 密钥：
 ```env
-GEMINI_API_KEY=your_actual_api_key_here
+VITE_GEMINI_API_KEY=your_actual_api_key_here
 ```
 
 4. 启动开发服务器：
@@ -137,6 +137,18 @@ npm run build
 ```bash
 npm run preview
 ```
+
+
+## ☁️ Cloudflare Pages 部署
+
+本项目是 Vite 单页应用，部署到 Cloudflare Pages 时请使用以下配置：
+
+- **Build command**: `npm run build`
+- **Build output directory**: `dist`
+- **Node.js**: 18+
+- **环境变量**: `VITE_GEMINI_API_KEY`（必填，否则 AI 导师功能不可用）
+
+如果你使用的是 Cloudflare 的 Git 自动部署，设置好上面参数即可直接发布。
 
 ## 🎯 使用指南
 

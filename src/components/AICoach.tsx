@@ -11,11 +11,17 @@ interface AICoachProps {
 const AICoach: React.FC<AICoachProps> = ({ phrases }) => {
   const [loading, setLoading] = useState(false);
   const [advice, setAdvice] = useState<string | null>(null);
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
   const getAdvice = async () => {
+    if (!apiKey) {
+      setAdvice('未检测到 Gemini API Key。请在部署平台中配置 VITE_GEMINI_API_KEY 环境变量。');
+      return;
+    }
+
     setLoading(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey });
       const phraseLabels = phrases.map(p => p.label).join('、');
       
       const prompt = phrases.length > 0 
