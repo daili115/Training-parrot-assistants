@@ -242,6 +242,8 @@ npm run preview
 
 ### 方式二：Wrangler CLI（命令行部署）
 
+> 如果你的 Cloudflare 构建平台执行的是 `npx wrangler deploy`，请使用本仓库当前 `wrangler.toml`（已配置静态资源目录）。
+
 1. 首次登录：
    ```bash
    npx wrangler login
@@ -250,12 +252,19 @@ npm run preview
    ```bash
    npm run build
    ```
-3. 创建（首次）并部署（后续可重复）到 Pages：
+3. 使用 Worker Assets 方式部署静态站点：
    ```bash
-   npx wrangler pages deploy dist --project-name training-parrot-assistants
+   npx wrangler deploy
    ```
 
-仓库内已提供 `wrangler.toml`，默认构建输出目录为 `dist`。
+当前 `wrangler.toml` 关键配置：
+- `[assets].directory = "./dist"`：把 Vite 构建产物作为静态资源上传
+- `[assets].not_found_handling = "single-page-application"`：前端路由回退到 `index.html`
+
+如果你更偏好 Cloudflare Pages，也可以继续使用：
+```bash
+npx wrangler pages deploy dist --project-name training-parrot-assistants
+```
 
 ## 🤝 贡献指南
 
