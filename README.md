@@ -220,6 +220,52 @@ npm run preview
 - 不会上传任何个人数据到外部服务器
 - 支持数据导出和备份功能
 
+
+## ☁️ Cloudflare 部署（推荐：Cloudflare Pages）
+
+你可以把这个 Vite 项目直接部署到 Cloudflare Pages。
+
+### 方式一：Cloudflare Dashboard（最简单）
+
+1. 将仓库推送到 GitHub / GitLab。
+2. 登录 Cloudflare → **Workers & Pages** → **Create** → **Pages**。
+3. 连接你的代码仓库并选择本项目。
+4. 构建配置填写：
+   - **Build command**: `npm run build`
+   - **Build output directory**: `dist`
+   - **Node.js version**: `18+`（建议 20）
+5. 在 Pages 项目的 **Settings → Environment variables** 中添加：
+   - `GEMINI_API_KEY=你的密钥`
+6. 点击部署。
+
+> 本项目已包含 `public/_redirects`，用于单页应用路由回退到 `index.html`。
+
+### 方式二：Wrangler CLI（命令行部署）
+
+> 如果你的 Cloudflare 构建平台执行的是 `npx wrangler deploy`，请使用本仓库当前 `wrangler.toml`（已配置静态资源目录）。
+
+1. 首次登录：
+   ```bash
+   npx wrangler login
+   ```
+2. 本地构建：
+   ```bash
+   npm run build
+   ```
+3. 使用 Worker Assets 方式部署静态站点：
+   ```bash
+   npx wrangler deploy
+   ```
+
+当前 `wrangler.toml` 关键配置：
+- `[assets].directory = "./dist"`：把 Vite 构建产物作为静态资源上传
+- `[assets].not_found_handling = "single-page-application"`：前端路由回退到 `index.html`
+
+如果你更偏好 Cloudflare Pages，也可以继续使用：
+```bash
+npx wrangler pages deploy dist --project-name training-parrot-assistants
+```
+
 ## 🤝 贡献指南
 
 欢迎提交 Issue 和 Pull Request 来改进这个项目！
