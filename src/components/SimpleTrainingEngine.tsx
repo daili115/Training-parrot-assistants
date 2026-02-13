@@ -26,12 +26,17 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
   const [volume, setVolume] = useState(0);
   const [noiseLevel, setNoiseLevel] = useState(0);
   const [showNoiseWarning, setShowNoiseWarning] = useState(false);
+  const [parrotResponseCount, setParrotResponseCount] = useState(0);
+  const [parrotFeedback, setParrotFeedback] = useState('');
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
+  const responseCooldownRef = useRef(0);
+  const responseFramesRef = useRef(0);
+  const feedbackTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // 获取当前短语
   const currentPhrase = phrases[currentPhraseIndex];
@@ -59,13 +64,40 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
           setVolume(normalized);
 
           // 检测噪音（超过阈值）
-          if (normalized > 0.3 && isPlaying) {
+          if (normalized > 0.3 && startTime) {
             setNoiseLevel(normalized);
             setShowNoiseWarning(true);
             setTimeout(() => setShowNoiseWarning(false), 2000);
           }
 
-          if (isPlaying) {
+          // 检测疑似鹦鹉回应声（短时连续高于阈值）
+          if (startTime) {
+            const now = Date.now();
+            if (normalized > 0.22) {
+              responseFramesRef.current += 1;
+            } else {
+              responseFramesRef.current = 0;
+            }
+
+            if (responseFramesRef.current >= 4 && now - responseCooldownRef.current > 3000) {
+              responseCooldownRef.current = now;
+              responseFramesRef.current = 0;
+              setParrotResponseCount(prev => prev + 1);
+              setParrotFeedback('🦜 检测到鹦鹉回应，做得真棒！');
+              if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
+              feedbackTimerRef.current = setTimeout(() => setParrotFeedback(''), 2200);
+
+              if (voiceAssist) {
+                speak('检测到鹦鹉回应，继续鼓励它');
+              }
+
+              if (navigator.vibrate) {
+                navigator.vibrate(120);
+              }
+            }
+          }
+
+          if (startTime) {
             requestAnimationFrame(checkVolume);
           } else {
             setVolume(0);
@@ -87,7 +119,7 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
       }
     };
 
-    if (isPlaying) {
+    if (startTime) {
       setupAudioMonitoring().then(c => {
         if (c) cleanup = c;
       });
@@ -101,7 +133,7 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
         analyserRef.current = null;
       }
     };
-  }, [isPlaying]);
+  }, [startTime, voiceAssist]);
 
   // 播放当前短语
   const playCurrentPhrase = () => {
@@ -198,6 +230,8 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
     setCurrentPhraseIndex(0);
     setPlayCount(0);
     setElapsedTime(0);
+    setParrotResponseCount(0);
+    setParrotFeedback('');
 
     // 开始计时器
     timerRef.current = setInterval(() => {
@@ -221,6 +255,8 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
     if (audioRef.current) {
       audioRef.current.pause();
     }
+
+    setStartTime(null);
 
     const durationMinutes = Math.max(1, Math.round(elapsedTime / 60));
     onFinish({
@@ -269,6 +305,7 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
       if (audioContextRef.current) {
         audioContextRef.current.close().catch(() => { });
       }
+      if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
     };
   }, []);
 
@@ -304,6 +341,9 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
         {showNoiseWarning && (
           <div className="mb-6 px-6 py-3 bg-red-500 text-white rounded-2xl font-black animate-pulse">⚠️ 环境噪音较大，建议在安静环境中训练</div>
         )}
+        {parrotFeedback && (
+          <div className="mb-4 px-6 py-3 bg-emerald-500 text-white rounded-2xl font-black animate-bounce">{parrotFeedback}</div>
+        )}
 
         <div className="text-center mb-8">
           <div className="text-sm font-bold text-slate-500 mb-2">正在播放</div>
@@ -329,6 +369,10 @@ const SimpleTrainingEngine: React.FC<SimpleTrainingEngineProps> = ({
           <div className="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-4 text-center">
             <div className="text-3xl font-black text-blue-600 dark:text-blue-400">{phrases.length}</div>
             <div className="text-xs text-slate-500">总词汇数</div>
+          </div>
+          <div className="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-4 text-center col-span-2">
+            <div className="text-3xl font-black text-purple-600 dark:text-purple-400">{parrotResponseCount}</div>
+            <div className="text-xs text-slate-500">检测到鹦鹉回应次数</div>
           </div>
         </div>
 

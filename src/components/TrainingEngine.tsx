@@ -23,12 +23,17 @@ const TrainingEngine: React.FC<TrainingEngineProps> = ({ phrases, settings, onFi
   const [isPaused, setIsPaused] = useState(false);
   const [ambientNoise, setAmbientNoise] = useState(0);
   const [status, setStatus] = useState<'playing' | 'waiting' | 'loading'>('loading');
+  const [parrotResponseCount, setParrotResponseCount] = useState(0);
+  const [parrotFeedback, setParrotFeedback] = useState('');
 
   const audioRef = useRef<HTMLAudioElement>(new Audio());
   const phraseIndexRef = useRef(0);
   const noiseAnalyserRef = useRef<AnalyserNode | null>(null);
   const startTimeRef = useRef(Date.now());
   const fadeIntervalRef = useRef<any>(null);
+  const responseCooldownRef = useRef(0);
+  const responseFramesRef = useRef(0);
+  const feedbackTimerRef = useRef<any>(null);
 
   // 噪音检测
   useEffect(() => {
@@ -52,6 +57,23 @@ const TrainingEngine: React.FC<TrainingEngineProps> = ({ phrases, settings, onFi
           analyser.getByteFrequencyData(dataArray);
           const level = dataArray.reduce((a, b) => a + b) / dataArray.length;
           setAmbientNoise(level);
+
+          const now = Date.now();
+          if (level > 32) {
+            responseFramesRef.current += 1;
+          } else {
+            responseFramesRef.current = 0;
+          }
+
+          if (responseFramesRef.current >= 3 && now - responseCooldownRef.current > 3000) {
+            responseCooldownRef.current = now;
+            responseFramesRef.current = 0;
+            setParrotResponseCount(prev => prev + 1);
+            setParrotFeedback('🦜 检测到鹦鹉发声回应！');
+            if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
+            feedbackTimerRef.current = setTimeout(() => setParrotFeedback(''), 2000);
+          }
+
           animationId = requestAnimationFrame(check);
         };
         check();
@@ -63,6 +85,7 @@ const TrainingEngine: React.FC<TrainingEngineProps> = ({ phrases, settings, onFi
 
     return () => {
       if (animationId) cancelAnimationFrame(animationId);
+      if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
       if (stream) stream.getTracks().forEach(t => t.stop());
       if (ctx && ctx.state !== 'closed') ctx.close();
       noiseAnalyserRef.current = null;
@@ -187,6 +210,7 @@ const TrainingEngine: React.FC<TrainingEngineProps> = ({ phrases, settings, onFi
           {status === 'playing' ? <Waves className="w-24 h-24" /> : <Bird className="w-20 h-20" />}
         </div>
         <h1 className="text-4xl md:text-6xl font-black mb-8">"{currentPhrase?.label || '同步中'}"</h1>
+        {parrotFeedback && <p className="mb-4 px-4 py-2 rounded-xl bg-emerald-500 text-white font-black animate-bounce">{parrotFeedback}</p>}
 
         {/* 噪音计 */}
         <div className="flex flex-col items-center gap-2 mb-4">
@@ -209,6 +233,7 @@ const TrainingEngine: React.FC<TrainingEngineProps> = ({ phrases, settings, onFi
           <div><p className="text-[10px] text-white/40 uppercase font-black mb-1">剩余时间</p><p className="text-3xl font-mono font-black">{Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}</p></div>
           <div><p className="text-[10px] text-white/40 uppercase font-black mb-1">循环倒计</p><p className="text-3xl font-mono font-black text-emerald-400">{status === 'waiting' ? nextPlayIn : 0}s</p></div>
           <div className="hidden md:block"><p className="text-[10px] text-white/40 uppercase font-black mb-1">已教遍数</p><p className="text-3xl font-mono font-black text-blue-400">{playCount}</p></div>
+          <div className="hidden md:block"><p className="text-[10px] text-white/40 uppercase font-black mb-1">鹦鹉回应</p><p className="text-3xl font-mono font-black text-purple-400">{parrotResponseCount}</p></div>
           <button onClick={() => setIsPaused(!isPaused)} className={`h-16 rounded-[24px] font-black ${isPaused ? 'bg-emerald-500' : 'bg-white/10'}`}>{isPaused ? '继续' : '暂停'}</button>
         </div>
       </div>
