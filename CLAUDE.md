@@ -118,13 +118,12 @@ Streaks are calculated based on consecutive days with training records. The syst
 - No linting/formatting setup
 - TypeScript strict mode is not explicitly configured
 - Vite is used with `@vitejs/plugin-react` and `vite-plugin-pwa`
-- Google Gemini API integration is available but requires `.env.local` with `GEMINI_API_KEY`
 
 ## Component Structure
 
 ```
 components/
-├── AICoach.tsx           # AI coaching feature (Gemini integration)
+├── AICoach.tsx           # 本地训练建议组件
 ├── BadgeDisplay.tsx      # Badge visualization
 ├── BadgeModal.tsx        # Achievement modal
 ├── ErrorBoundary.tsx     # React error boundary
@@ -157,7 +156,6 @@ utils/
 
 - `react@19.2.3` - UI framework
 - `lucide-react@0.562.0` - Icon library
-- `@google/genai@1.34.0` - Gemini API integration
 - `vite@6.2.0` - Build tool
 - `vite-plugin-pwa@1.2.0` - PWA support
 
@@ -165,7 +163,6 @@ utils/
 
 Create `.env.local` for AI features:
 ```
-GEMINI_API_KEY=your_api_key_here
 ```
 
 Without the API key, most features work except the AI coaching component.

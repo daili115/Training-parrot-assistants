@@ -133,7 +133,6 @@ export const DeploymentMain: React.FC = () => {
                         <Prompt delay={10}>notepad .env.local</Prompt>
                         <Output delay={30} color="#4ade80">
                             # File updated <br />
-                            GEMINI_API_KEY=●●●●●●●●●●●●●●●●
                         </Output>
                         <div style={{
                             marginTop: '40px',
